@@ -1,0 +1,30 @@
+{
+  "name": "lazy-photos-web-react-gpt",
+  "version": "1.0.0",
+  "description": "Clone of google photos web UI",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^15.4.5",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.4.5",
+    "typescript": "^5.9.2",
+    "vitest": "^2.1.1"
+  }
+}
