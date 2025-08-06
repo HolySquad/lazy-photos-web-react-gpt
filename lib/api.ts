@@ -1,20 +1,13 @@
-const API_BASE = 'https://lazy-photo-api.azurewebsites.net';
-
 export async function registerUser(email: string, password: string) {
-  const res = await fetch(`${API_BASE}/api/auth/register`, {
+  const res = await fetch('/api/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
 
   if (!res.ok) {
-    let message = 'Failed to register';
-    try {
-      const data = await res.json();
-      if (data.message) message = data.message;
-    } catch (e) {
-      // ignore
-    }
+    const data = await res.json().catch(() => ({}));
+    const message = (data as any).message ?? 'Failed to register';
     throw new Error(message);
   }
 
