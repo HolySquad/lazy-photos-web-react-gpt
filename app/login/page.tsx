@@ -4,16 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { registerUser } from "@/shared/api/auth";
+import { loginUser } from "@/shared/api/auth";
+import { setAuthSession } from "@/shared/auth/session";
 import styles from "../auth.module.css";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const mutation = useMutation({
-    mutationFn: registerUser,
-    onSuccess: () => router.push("/login"),
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      if (data.accessToken && data.refreshToken) {
+        setAuthSession(data.accessToken, data.refreshToken, email);
+      }
+      router.push("/");
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,7 +29,7 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.container}>
-      <h1>Register</h1>
+      <h1>Login</h1>
       <form onSubmit={handleSubmit} className={styles.form}>
         <label htmlFor="email">Email</label>
         <input
@@ -48,17 +54,13 @@ export default function RegisterPage() {
               : "Unexpected error"}
           </p>
         )}
-      <button type="submit" disabled={mutation.isPending}>
-        {mutation.isPending ? "Registering..." : "Register"}
-      </button>
-    </form>
-    <hr className={styles.divider} />
-    <button disabled className={styles.socialButton}>
-      Sign up with Google (coming soon)
-    </button>
-    <p className={styles.alt}>
-      Already have an account? <Link href="/login">Login</Link>
-    </p>
-  </div>
-);
+        <button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "Logging in..." : "Login"}
+        </button>
+      </form>
+      <p className={styles.alt}>
+        Don&apos;t have an account? <Link href="/register">Register</Link>
+      </p>
+    </div>
+  );
 }

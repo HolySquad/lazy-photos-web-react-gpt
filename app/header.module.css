@@ -1,0 +1,27 @@
+.header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 1rem;
+  z-index: 100;
+}
+
+.userMenu {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.user {
+  color: #0f0;
+  font-weight: bold;
+}
+
+.logout {
+  background: transparent;
+  border: 1px solid #0f0;
+  color: #0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}

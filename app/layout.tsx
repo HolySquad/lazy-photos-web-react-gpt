@@ -1,14 +1,15 @@
-import './globals.css';
-import type { ReactNode } from 'react';
-import { Providers } from './providers';
+import "./globals.css";
+import type { ReactNode } from "react";
+import { Providers } from "./providers";
+import Header from "./header";
 
 export const metadata = {
-  title: 'Lazy Photos',
-  description: 'Clone of Google Photos web UI',
+  title: "Lazy Photos",
+  description: "A geeky photo storage app",
 };
 
 export const viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
 };
 
@@ -16,7 +17,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );
