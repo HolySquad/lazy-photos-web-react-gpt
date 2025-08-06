@@ -6,7 +6,7 @@ import apiSchema from '../swagger.json';
 const REGISTER_PATH =
   Object.keys((apiSchema as any).paths || {}).find(
     (p) => (apiSchema as any).paths[p]?.post?.operationId === 'Auth_Register'
-  ) ?? '/api/Auth/register';
+  ) ?? '/register';
 
 function buildSchemaFromSpec(spec: any, name: string) {
   const properties = spec.components?.schemas?.[name]?.properties ?? {};
