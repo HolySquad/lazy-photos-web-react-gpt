@@ -3,19 +3,24 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./header.module.css";
-import { getCookie, clearAuthSession } from "@/shared/auth/session";
+import {
+  getCookie,
+  clearAuthSession,
+  onAuthSessionChange,
+} from "@/shared/auth/session";
 
 export default function Header() {
   const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    setUsername(getCookie("username"));
+    const update = () => setUsername(getCookie("username"));
+    update();
+    return onAuthSessionChange(update);
   }, []);
 
   const handleLogout = () => {
     clearAuthSession();
-    setUsername(null);
     router.push("/");
   };
 

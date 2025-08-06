@@ -4,13 +4,15 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./home.module.css";
-import { getCookie } from "@/shared/auth/session";
+import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    setUsername(getCookie("username"));
+    const update = () => setUsername(getCookie("username"));
+    update();
+    return onAuthSessionChange(update);
   }, []);
 
   const images = Array.from({ length: 6 }).map((_, i) => (
