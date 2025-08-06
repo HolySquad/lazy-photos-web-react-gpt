@@ -6,24 +6,25 @@ beforeEach(() => {
 });
 
 describe('registerUser', () => {
-  it('posts to the path from swagger and returns user data', async () => {
+  it('posts to the path from swagger and resolves on success', async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = 'https://api.example.com';
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: 'OK',
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      json: async () => ({ id: '1', email: 'test@example.com' }),
+      headers: new Headers(),
+      json: async () => undefined,
       text: async () => '',
     });
     (global as any).fetch = mockFetch;
     const { registerUser } = await import('../../src/shared/api/auth');
-    const res = await registerUser({ email: 'test@example.com', password: 'pass' });
+    await expect(
+      registerUser({ email: 'test@example.com', password: 'pass' }),
+    ).resolves.toBeUndefined();
     expect(mockFetch).toHaveBeenCalledWith(
       'https://api.example.com/register',
       expect.objectContaining({ method: 'POST' })
     );
-    expect(res).toEqual({ id: '1', email: 'test@example.com' });
   });
 
   it('extracts the first problem-details error message', async () => {

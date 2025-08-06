@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { API_BASE_URL } from '../config';
 import {
   LazyMyPhotosApiService,
@@ -8,19 +7,11 @@ import {
 
 OpenAPI.BASE = API_BASE_URL;
 
-const RegisterResponseSchema = z.object({
-  id: z.string(),
-  email: z.string().email(),
-});
-
-export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
-
 export async function registerUser(
   data: RegisterRequest,
-): Promise<RegisterResponse> {
+): Promise<void> {
   try {
-    const res = await LazyMyPhotosApiService.postRegister(data);
-    return RegisterResponseSchema.parse(res);
+    await LazyMyPhotosApiService.postRegister(data);
   } catch (err) {
     const body = (err as any)?.body as
       | { errors?: Record<string, string[]>; message?: string }
