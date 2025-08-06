@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/lib/api';
+import styles from './register.module.css';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,9 +27,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', padding: '2rem' }}>
+    <div className={styles.container}>
       <h1>Register</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <label htmlFor="email">Email</label>
         <input
           id="email"
@@ -45,13 +46,13 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p className={styles.error}>{error}</p>}
         <button type="submit" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
-      <hr style={{ margin: '2rem 0' }} />
-      <button disabled style={{ width: '100%' }}>
+      <hr className={styles.divider} />
+      <button disabled className={styles.socialButton}>
         Sign up with Google (coming soon)
       </button>
     </div>
