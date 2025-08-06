@@ -1,8 +1,17 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import styles from "./home.module.css";
 
 export default function Home() {
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUsername(localStorage.getItem("username"));
+  }, []);
+
   const images = Array.from({ length: 6 }).map((_, i) => (
     <img
       key={i}
@@ -16,14 +25,16 @@ export default function Home() {
       <section className={styles.hero}>
         <h1 className={styles.title}>Lazy Photos</h1>
         <p className={styles.tagline}>Store your memories like a true geek.</p>
-        <div className={styles.actions}>
-          <Link href="/login" className={styles.login}>
-            Login
-          </Link>
-          <Link href="/register" className={styles.register}>
-            Register
-          </Link>
-        </div>
+        {!username && (
+          <div className={styles.actions}>
+            <Link href="/login" className={styles.login}>
+              Login
+            </Link>
+            <Link href="/register" className={styles.register}>
+              Register
+            </Link>
+          </div>
+        )}
       </section>
       <section className={styles.gallery}>{images}</section>
     </main>

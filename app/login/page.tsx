@@ -12,7 +12,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const mutation = useMutation({
     mutationFn: loginUser,
-    onSuccess: () => router.push("/"),
+    onSuccess: (data) => {
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+      }
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
+      localStorage.setItem("username", email);
+      router.push("/");
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

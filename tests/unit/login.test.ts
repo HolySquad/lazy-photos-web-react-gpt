@@ -12,15 +12,25 @@ describe("loginUser", () => {
       ok: true,
       status: 200,
       statusText: "OK",
-      headers: new Headers(),
-      json: async () => ({ access_token: "token" }),
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => ({
+        tokenType: "Bearer",
+        accessToken: "token",
+        expiresIn: 3600,
+        refreshToken: "refresh",
+      }),
       text: async () => "",
     });
     (global as any).fetch = mockFetch;
     const { loginUser } = await import("../../src/shared/api/auth");
     await expect(
       loginUser({ email: "test@example.com", password: "pass" }),
-    ).resolves.toBeUndefined();
+    ).resolves.toEqual({
+      tokenType: "Bearer",
+      accessToken: "token",
+      expiresIn: 3600,
+      refreshToken: "refresh",
+    });
     expect(mockFetch).toHaveBeenCalledWith(
       "https://api.example.com/login",
       expect.objectContaining({ method: "POST" }),

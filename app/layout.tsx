@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import { Providers } from "./providers";
+import Header from "./header";
 
 export const metadata = {
   title: "Lazy Photos",
@@ -16,7 +17,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

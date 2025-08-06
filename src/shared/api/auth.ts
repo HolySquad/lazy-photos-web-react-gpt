@@ -4,6 +4,7 @@ import {
   OpenAPI,
   type RegisterRequest,
   type LoginRequest,
+  type AccessTokenResponse,
 } from "./generated";
 
 OpenAPI.BASE = API_BASE_URL;
@@ -26,9 +27,15 @@ export async function registerUser(data: RegisterRequest): Promise<void> {
   }
 }
 
-export async function loginUser(data: LoginRequest): Promise<void> {
+export async function loginUser(
+  data: LoginRequest,
+): Promise<AccessTokenResponse> {
   try {
-    await LazyMyPhotosApiService.postLogin(undefined, undefined, data);
+    return await LazyMyPhotosApiService.postLogin(
+      undefined,
+      undefined,
+      data,
+    );
   } catch (err) {
     const body = (err as any)?.body as
       | { errors?: Record<string, string[]>; message?: string }
