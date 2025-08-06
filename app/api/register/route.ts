@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.API_BASE_URL ?? 'https://lazy-photo-api.azurewebsites.net';
+import { API_BASE_URL } from '@/lib/config';
 
 export async function POST(request: Request) {
   try {
