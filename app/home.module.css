@@ -60,6 +60,7 @@
 .appContainer {
   display: flex;
   min-height: 100vh;
+  padding-top: 4rem;
 }
 
 .sidebar {
