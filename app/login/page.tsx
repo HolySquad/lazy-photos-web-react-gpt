@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { registerUser } from "@/shared/api/auth";
+import { loginUser } from "@/shared/api/auth";
 import styles from "../auth.module.css";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const mutation = useMutation({
-    mutationFn: registerUser,
+    mutationFn: loginUser,
     onSuccess: () => router.push("/"),
   });
 
@@ -22,7 +22,7 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.container}>
-      <h1>Register</h1>
+      <h1>Login</h1>
       <form onSubmit={handleSubmit} className={styles.form}>
         <label htmlFor="email">Email</label>
         <input
@@ -48,13 +48,9 @@ export default function RegisterPage() {
           </p>
         )}
         <button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? "Registering..." : "Register"}
+          {mutation.isPending ? "Logging in..." : "Login"}
         </button>
       </form>
-      <hr className={styles.divider} />
-      <button disabled className={styles.socialButton}>
-        Sign up with Google (coming soon)
-      </button>
     </div>
   );
 }

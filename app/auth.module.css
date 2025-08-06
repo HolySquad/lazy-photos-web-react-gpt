@@ -1,0 +1,62 @@
+.container {
+  max-width: 400px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: #111;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form label {
+  font-weight: bold;
+}
+
+.form input {
+  padding: 0.5rem;
+  background: #000;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+}
+
+.form button {
+  padding: 0.75rem 1.5rem;
+  background: #00ff00;
+  color: #000;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.error {
+  color: #ff4d4f;
+}
+
+.divider {
+  margin: 2rem 0;
+  border-color: #00ff00;
+}
+
+.socialButton {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: #333;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .container {
+    margin: 2rem 1rem;
+    padding: 1rem;
+  }
+}
