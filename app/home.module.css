@@ -56,8 +56,115 @@
   display: block;
 }
 
+/* Authorized home */
+.appContainer {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  padding: 1rem;
+  border-right: 1px solid #00ff00;
+}
+
+.appName {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.navItem {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  text-align: left;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.navItem:hover {
+  text-decoration: underline;
+}
+
+.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.photoGrid,
+.albumGrid {
+  width: 100%;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.photoGrid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.albumItem {
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.albumItem img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.albumInfo {
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.albumName {
+  font-weight: bold;
+}
+
+.albumCount {
+  font-size: 0.875rem;
+}
+
 @media (max-width: 600px) {
   .title {
     font-size: 2rem;
+  }
+
+  .appContainer {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #00ff00;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav {
+    flex-direction: row;
   }
 }
