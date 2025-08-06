@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type RegisterRequest = {
+export type InfoResponse = {
     email: string | null;
-    password: string | null;
+    isEmailConfirmed: boolean;
 };
 

@@ -20,7 +20,7 @@ describe('registerUser', () => {
     const { registerUser } = await import('../../src/shared/api/auth');
     const res = await registerUser({ email: 'test@example.com', password: 'pass' });
     expect(mockFetch).toHaveBeenCalledWith(
-      'https://api.example.com/api/Auth/register',
+      'https://api.example.com/register',
       expect.objectContaining({ method: 'POST' })
     );
     expect(res).toEqual({ id: '1', email: 'test@example.com' });

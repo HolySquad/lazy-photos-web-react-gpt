@@ -2,8 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type RegisterRequest = {
+export type ResendConfirmationEmailRequest = {
     email: string | null;
-    password: string | null;
 };
 

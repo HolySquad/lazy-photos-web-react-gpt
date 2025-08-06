@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { API_BASE_URL } from '../config';
 import {
-  DefaultService,
+  LazyMyPhotosApiService,
   OpenAPI,
   type RegisterRequest,
 } from './generated';
@@ -19,7 +19,7 @@ export async function registerUser(
   data: RegisterRequest,
 ): Promise<RegisterResponse> {
   try {
-    const res = await DefaultService.authRegister(data);
+    const res = await LazyMyPhotosApiService.postRegister(data);
     return RegisterResponseSchema.parse(res);
   } catch (err) {
     const message =

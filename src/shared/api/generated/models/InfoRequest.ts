@@ -2,8 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type RegisterRequest = {
-    email: string | null;
-    password: string | null;
+export type InfoRequest = {
+    newEmail?: string | null;
+    newPassword?: string | null;
+    oldPassword?: string | null;
 };
 
