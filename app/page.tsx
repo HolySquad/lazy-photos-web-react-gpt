@@ -4,12 +4,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./home.module.css";
+import { getCookie } from "@/shared/auth/session";
 
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    setUsername(localStorage.getItem("username"));
+    setUsername(getCookie("username"));
   }, []);
 
   const images = Array.from({ length: 6 }).map((_, i) => (

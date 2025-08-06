@@ -54,6 +54,15 @@
   cursor: not-allowed;
 }
 
+.alt {
+  text-align: center;
+}
+
+.alt a {
+  color: #00ff00;
+  text-decoration: underline;
+}
+
 @media (max-width: 600px) {
   .container {
     margin: 2rem 1rem;

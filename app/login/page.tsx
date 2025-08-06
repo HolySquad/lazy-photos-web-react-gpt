@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "@/shared/api/auth";
+import { setAuthSession } from "@/shared/auth/session";
 import styles from "../auth.module.css";
 
 export default function LoginPage() {
@@ -13,13 +15,9 @@ export default function LoginPage() {
   const mutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
+      if (data.accessToken && data.refreshToken) {
+        setAuthSession(data.accessToken, data.refreshToken, email);
       }
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
-      localStorage.setItem("username", email);
       router.push("/");
     },
   });
@@ -60,6 +58,9 @@ export default function LoginPage() {
           {mutation.isPending ? "Logging in..." : "Login"}
         </button>
       </form>
+      <p className={styles.alt}>
+        Don&apos;t have an account? <Link href="/register">Register</Link>
+      </p>
     </div>
   );
 }

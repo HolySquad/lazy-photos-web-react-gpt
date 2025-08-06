@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "@/shared/api/auth";
@@ -12,7 +13,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const mutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: () => router.push("/"),
+    onSuccess: () => router.push("/login"),
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,14 +48,17 @@ export default function RegisterPage() {
               : "Unexpected error"}
           </p>
         )}
-        <button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? "Registering..." : "Register"}
-        </button>
-      </form>
-      <hr className={styles.divider} />
-      <button disabled className={styles.socialButton}>
-        Sign up with Google (coming soon)
+      <button type="submit" disabled={mutation.isPending}>
+        {mutation.isPending ? "Registering..." : "Register"}
       </button>
-    </div>
-  );
+    </form>
+    <hr className={styles.divider} />
+    <button disabled className={styles.socialButton}>
+      Sign up with Google (coming soon)
+    </button>
+    <p className={styles.alt}>
+      Already have an account? <Link href="/login">Login</Link>
+    </p>
+  </div>
+);
 }
