@@ -13,13 +13,13 @@ describe("getPhotos", () => {
       status: 200,
       statusText: "OK",
       headers: new Headers({ "Content-Type": "application/json" }),
-      json: async () => [{ id: 1, url: "https://img/1" }],
+      json: async () => [{ id: 1 }],
       text: async () => "",
     });
     (global as any).fetch = mockFetch;
     const { getPhotos } = await import("../../src/shared/api/photos");
     await expect(getPhotos()).resolves.toEqual([
-      { id: 1, url: "https://img/1" },
+      { id: 1, url: "https://api.example.com/api/PhotoContent/1" },
     ]);
     expect(mockFetch).toHaveBeenCalledWith(
       "https://api.example.com/api/Photo",

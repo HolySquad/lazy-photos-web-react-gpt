@@ -8,16 +8,23 @@ OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
 const PhotoSchema = z.object({
   id: z.number(),
-  url: z.string().url(),
 });
 
 const PhotosSchema = z.array(PhotoSchema);
-export type Photo = z.infer<typeof PhotoSchema>;
+export type Photo = z.infer<typeof PhotoSchema> & { url: string };
+
+export function getPhotoContentUrl(id: number): string {
+  return `${API_BASE_URL}/api/PhotoContent/${id}`;
+}
 
 export async function getPhotos(): Promise<Photo[]> {
   try {
     const res = await PhotoService.getApiPhoto();
-    return PhotosSchema.parse(res);
+    const photos = PhotosSchema.parse(res);
+    return photos.map((photo) => ({
+      ...photo,
+      url: getPhotoContentUrl(photo.id),
+    }));
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
