@@ -14,7 +14,9 @@ const PhotosSchema = z.array(PhotoSchema);
 export type Photo = z.infer<typeof PhotoSchema> & { url: string };
 
 export function getPhotoContentUrl(id: number): string {
-  return `${API_BASE_URL}/api/PhotoContent/${id}`;
+  const token = getCookie("accessToken");
+  const query = token ? `?access_token=${encodeURIComponent(token)}` : "";
+  return `${API_BASE_URL}/api/PhotoContent/${id}${query}`;
 }
 
 export async function getPhotos(): Promise<Photo[]> {

@@ -3,11 +3,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 beforeEach(() => {
   vi.resetModules();
   vi.restoreAllMocks();
+  // reset document for each test
+  delete (globalThis as any).document;
 });
 
 describe("getPhotos", () => {
   it("calls the photos endpoint and resolves with data", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -19,11 +22,15 @@ describe("getPhotos", () => {
     (global as any).fetch = mockFetch;
     const { getPhotos } = await import("../../src/shared/api/photos");
     await expect(getPhotos()).resolves.toEqual([
-      { id: 1, url: "https://api.example.com/api/PhotoContent/1" },
+      {
+        id: 1,
+        url: "https://api.example.com/api/PhotoContent/1?access_token=token",
+      },
     ]);
-    expect(mockFetch).toHaveBeenCalledWith(
-      "https://api.example.com/api/Photo",
-      expect.objectContaining({ method: "GET" }),
+    const [, init] = mockFetch.mock.calls[0];
+    expect(init?.method).toBe("GET");
+    expect((init?.headers as Headers).get("Authorization")).toBe(
+      "Bearer token",
     );
   });
 
