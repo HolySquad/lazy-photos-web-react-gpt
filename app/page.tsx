@@ -106,7 +106,11 @@ export default function Home() {
           ) : (
             <div className={styles.photoGrid}>
               {photos.map((photo) => (
-                <img key={photo.id} src={photo.url} alt={`Photo ${photo.id}`} />
+                <img
+                  key={photo.id}
+                  src={photo.photoUrl}
+                  alt={photo.displayFileName}
+                />
               ))}
             </div>
           )

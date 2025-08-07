@@ -6,27 +6,31 @@ import { OpenAPI, PhotoService } from "./generated";
 OpenAPI.BASE = API_BASE_URL;
 OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
+const PhotoMetadataSchema = z.object({
+  cameraModel: z.string(),
+  aperture: z.string(),
+  shutterTime: z.string(),
+  focusRange: z.number(),
+  isoCount: z.number(),
+});
+
 const PhotoSchema = z.object({
   id: z.number(),
+  displayFileName: z.string(),
+  photoUrl: z.string().url(),
+  blobId: z.string(),
+  userId: z.string(),
+  createdAt: z.string(),
+  photoMetadata: PhotoMetadataSchema,
 });
 
 const PhotosSchema = z.array(PhotoSchema);
-export type Photo = z.infer<typeof PhotoSchema> & { url: string };
-
-export function getPhotoContentUrl(id: number): string {
-  const token = getCookie("accessToken");
-  const query = token ? `?access_token=${encodeURIComponent(token)}` : "";
-  return `${API_BASE_URL}/api/PhotoContent/${id}${query}`;
-}
+export type Photo = z.infer<typeof PhotoSchema>;
 
 export async function getPhotos(): Promise<Photo[]> {
   try {
     const res = await PhotoService.getApiPhoto();
-    const photos = PhotosSchema.parse(res);
-    return photos.map((photo) => ({
-      ...photo,
-      url: getPhotoContentUrl(photo.id),
-    }));
+    return PhotosSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
