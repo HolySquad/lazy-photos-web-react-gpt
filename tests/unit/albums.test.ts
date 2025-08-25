@@ -108,6 +108,29 @@ describe("albums api", () => {
     );
   });
 
+  it("adds photo to album", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => undefined,
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const { addPhotoToAlbum } = await import("../../src/shared/api/albums");
+    await addPhotoToAlbum(5, 10);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe("https://api.example.com/Album/5/photos");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(JSON.stringify([10]));
+    const headers = init?.headers as Headers;
+    expect(headers.get("Authorization")).toBe("Bearer token");
+    expect(headers.get("Content-Type")).toBe("application/json");
+  });
+
   it("throws createAlbum error message", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     const mockFetch = vi.fn().mockResolvedValue({

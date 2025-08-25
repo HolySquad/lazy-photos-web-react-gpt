@@ -2,18 +2,26 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
-import { getAlbums, createAlbum } from "@/shared/api/albums";
+import {
+  getAlbums,
+  createAlbum,
+  addPhotoToAlbum,
+  Album,
+} from "@/shared/api/albums";
 
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
   const [active, setActive] = useState<"photos" | "albums">("photos");
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [albumTitle, setAlbumTitle] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showAlbumPicker, setShowAlbumPicker] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -31,6 +39,9 @@ export default function Home() {
     enabled: !!username && active === "photos",
   });
 
+  const selectedPhoto =
+    selectedIndex !== null ? photos[selectedIndex] : null;
+
   const {
     data: albums = [],
     isLoading: albumsLoading,
@@ -38,13 +49,29 @@ export default function Home() {
   } = useQuery({
     queryKey: ["albums"],
     queryFn: getAlbums,
-    enabled: !!username && active === "albums",
+    enabled: !!username && (active === "albums" || showAlbumPicker),
   });
 
   const openCreateAlbum = () => {
     setAlbumTitle("");
     setShowAlbumModal(true);
   };
+
+  const showPrevPhoto = useCallback(
+    () =>
+      setSelectedIndex((idx) =>
+        idx === null ? idx : idx === 0 ? photos.length - 1 : idx - 1,
+      ),
+    [photos.length],
+  );
+
+  const showNextPhoto = useCallback(
+    () =>
+      setSelectedIndex((idx) =>
+        idx === null ? idx : idx === photos.length - 1 ? 0 : idx + 1,
+      ),
+    [photos.length],
+  );
 
   const submitCreateAlbum = async () => {
     if (!albumTitle.trim()) return;
@@ -56,6 +83,19 @@ export default function Home() {
       alert(err instanceof Error ? err.message : "Failed to create album");
     }
   };
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        showNextPhoto();
+      } else if (e.key === "ArrowLeft") {
+        showPrevPhoto();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedIndex, showNextPhoto, showPrevPhoto]);
 
   if (!username) {
     const images = Array.from({ length: 6 }).map((_, i) => (
@@ -114,11 +154,12 @@ export default function Home() {
             <p>Failed to load photos</p>
           ) : (
             <div className={styles.photoGrid}>
-              {photos.map((photo) => (
+              {photos.map((photo, i) => (
                 <img
                   key={photo.id}
                   src={photo.photoUrl}
                   alt={photo.displayFileName}
+                  onClick={() => setSelectedIndex(i)}
                 />
               ))}
             </div>
@@ -179,6 +220,120 @@ export default function Home() {
           </>
         )}
       </section>
+      {selectedPhoto && (
+        <div
+          className={styles.photoPreviewOverlay}
+          onClick={() => {
+            setSelectedIndex(null);
+            setMenuOpen(false);
+            setShowAlbumPicker(false);
+          }}
+        >
+          <button
+            className={`${styles.navButton} ${styles.prevButton}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              showPrevPhoto();
+            }}
+            aria-label="Previous photo"
+          >
+            ‹
+          </button>
+          <div
+            className={styles.photoPreview}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closePreview}
+              onClick={() => {
+                setSelectedIndex(null);
+                setMenuOpen(false);
+                setShowAlbumPicker(false);
+              }}
+            >
+              ×
+            </button>
+            <img
+              src={selectedPhoto.photoUrl}
+              alt={selectedPhoto.displayFileName}
+              className={styles.previewImage}
+            />
+            <div className={styles.previewMenuWrapper}>
+              <button
+                className={styles.menuButton}
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="More actions"
+              >
+                ⋮
+              </button>
+              {menuOpen && (
+                <div className={styles.menuDropdown}>
+                  <button
+                    onClick={() => {
+                      setShowAlbumPicker(true);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Add to album
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <button
+            className={`${styles.navButton} ${styles.nextButton}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              showNextPhoto();
+            }}
+            aria-label="Next photo"
+          >
+            ›
+          </button>
+          {showAlbumPicker && (
+            <div className={styles.modalOverlay}>
+              <div className={styles.modal}>
+                <h3>Select album</h3>
+                <div className={styles.albumList}>
+                  {albums.map((album: Album) => (
+                    <button
+                      key={album.id}
+                      className={styles.albumSelect}
+                      onClick={async () => {
+                        try {
+                          await addPhotoToAlbum(album.id, selectedPhoto.id);
+                          setShowAlbumPicker(false);
+                        } catch (err) {
+                          alert(
+                            err instanceof Error
+                              ? err.message
+                              : "Failed to add photo",
+                          );
+                        }
+                      }}
+                    >
+                      {album.thumbnailPath ? (
+                        <img src={album.thumbnailPath} alt={album.title} />
+                      ) : (
+                        <div className={styles.albumPlaceholder}>No image</div>
+                      )}
+                      <span>{album.title}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.modalActions}>
+                  <button
+                    className={`${styles.modalButton} ${styles.modalCancel}`}
+                    onClick={() => setShowAlbumPicker(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 }
