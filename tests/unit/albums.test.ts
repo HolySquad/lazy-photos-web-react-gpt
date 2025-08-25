@@ -56,12 +56,11 @@ describe("albums api", () => {
     const { createAlbum } = await import("../../src/shared/api/albums");
     await expect(createAlbum("New")).resolves.toEqual(mockAlbum);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe("https://api.example.com/Album");
-    expect(init?.method).toBe("POST");
-    expect(init?.body).toBe(JSON.stringify({ title: "New" }));
-    expect((init?.headers as Headers).get("Content-Type")).toBe(
-      "application/json",
+    expect(url).toBe(
+      "https://api.example.com/Album/CreateAlbum?albumName=New",
     );
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBeUndefined();
     expect((init?.headers as Headers).get("Authorization")).toBe(
       "Bearer token",
     );
@@ -94,7 +93,7 @@ describe("albums api", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 400,
-      statusText: "Bad", 
+      statusText: "Bad",
       headers: new Headers({ "Content-Type": "application/json" }),
       json: async () => ({ message: "fail" }),
       text: async () => "",

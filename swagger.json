@@ -16,27 +16,6 @@
             "description": "OK"
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Album"
-        ],
-        "operationId": "CreateAlbum",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAlbumRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
     "/Album/{id}": {
@@ -53,6 +32,27 @@
             "schema": {
               "type": "integer",
               "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Album/CreateAlbum": {
+      "post": {
+        "tags": [
+          "Album"
+        ],
+        "parameters": [
+          {
+            "name": "albumName",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -530,14 +530,6 @@
         },
         "additionalProperties": false
       },
-      "CreateAlbumRequest": {
-        "type": "object",
-        "required": ["title"],
-        "properties": {
-          "title": { "type": "string" }
-        },
-        "additionalProperties": false
-      },
       "ForgotPasswordRequest": {
         "required": [
           "email"
@@ -586,7 +578,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "InfoRequest": {
         "type": "object",
@@ -784,7 +776,7 @@
   },
   "security": [
     {
-      "Bearer": [ ]
+      "Bearer": []
     }
   ]
 }
