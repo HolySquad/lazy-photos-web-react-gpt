@@ -10,23 +10,30 @@ describe("albums api", () => {
   it("fetches albums with auth header", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     (globalThis as any).document = { cookie: "accessToken=token" };
-    const mockAlbum = {
+    const mockAlbumApi = {
       id: 1,
       name: "Vacation",
-      count: 10,
-      thumb: "https://example.com/thumb.jpg",
+      photosCount: 10,
+      thumbnailUrl: "https://example.com/thumb.jpg",
     };
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: "OK",
       headers: new Headers({ "Content-Type": "application/json" }),
-      json: async () => [mockAlbum],
+      json: async () => [mockAlbumApi],
       text: async () => "",
     });
     (global as any).fetch = mockFetch;
     const { getAlbums } = await import("../../src/shared/api/albums");
-    await expect(getAlbums()).resolves.toEqual([mockAlbum]);
+    await expect(getAlbums()).resolves.toEqual([
+      {
+        id: 1,
+        name: "Vacation",
+        count: 10,
+        thumb: "https://example.com/thumb.jpg",
+      },
+    ]);
     const [, init] = mockFetch.mock.calls[0];
     expect(init?.method).toBe("GET");
     expect((init?.headers as Headers).get("Authorization")).toBe(
@@ -47,6 +54,28 @@ describe("albums api", () => {
     (global as any).fetch = mockFetch;
     const { getAlbums } = await import("../../src/shared/api/albums");
     await expect(getAlbums()).rejects.toThrow("boom");
+  });
+
+  it("defaults missing counts", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
+    const mockAlbumApi = {
+      id: 2,
+      name: "Empty",
+    };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => [mockAlbumApi],
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const { getAlbums } = await import("../../src/shared/api/albums");
+    await expect(getAlbums()).resolves.toEqual([
+      { id: 2, name: "Empty", count: 0, thumb: undefined },
+    ]);
   });
 
   it("posts album name", async () => {

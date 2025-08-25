@@ -6,20 +6,34 @@ import { OpenAPI, AlbumService } from "./generated";
 OpenAPI.BASE = API_BASE_URL;
 OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
-const AlbumSchema = z.object({
+const RawAlbumSchema = z.object({
   id: z.number(),
   name: z.string(),
-  count: z.number(),
+  count: z.number().optional(),
+  photosCount: z.number().optional(),
   thumb: z.string().url().optional(),
+  thumbnailUrl: z.string().url().optional(),
 });
 
-const AlbumsSchema = z.array(AlbumSchema);
-export type Album = z.infer<typeof AlbumSchema>;
+const AlbumsSchema = z.array(RawAlbumSchema);
+
+export type Album = {
+  id: number;
+  name: string;
+  count: number;
+  thumb?: string;
+};
 
 export async function getAlbums(): Promise<Album[]> {
   try {
     const res = await AlbumService.getAlbums();
-    return AlbumsSchema.parse(res);
+    const raw = AlbumsSchema.parse(res);
+    return raw.map((a) => ({
+      id: a.id,
+      name: a.name,
+      count: a.count ?? a.photosCount ?? 0,
+      thumb: a.thumb ?? a.thumbnailUrl,
+    }));
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
