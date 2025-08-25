@@ -143,8 +143,16 @@ export default function Home() {
                     placeholder="Album name"
                   />
                   <div className={styles.modalActions}>
-                    <button onClick={submitCreateAlbum}>Create</button>
-                    <button onClick={() => setShowAlbumModal(false)}>
+                    <button
+                      className={`${styles.modalButton} ${styles.modalConfirm}`}
+                      onClick={submitCreateAlbum}
+                    >
+                      Create
+                    </button>
+                    <button
+                      className={`${styles.modalButton} ${styles.modalCancel}`}
+                      onClick={() => setShowAlbumModal(false)}
+                    >
                       Cancel
                     </button>
                   </div>

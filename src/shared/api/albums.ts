@@ -2,7 +2,6 @@ import { z } from "zod";
 import { API_BASE_URL } from "../config";
 import { getCookie } from "../auth/session";
 import { OpenAPI, AlbumService } from "./generated";
-import { request as __request } from "./generated/core/request";
 
 OpenAPI.BASE = API_BASE_URL;
 OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
@@ -43,9 +42,9 @@ export async function getAlbum(id: number): Promise<Album> {
   }
 }
 
-export async function createAlbum(albumName: string): Promise<Album> {
+export async function createAlbum(title: string): Promise<Album> {
   try {
-    const res = await AlbumService.postAlbumCreateAlbum(albumName);
+    const res = await AlbumService.createAlbum({ title });
     return AlbumSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
@@ -58,11 +57,7 @@ export async function createAlbum(albumName: string): Promise<Album> {
 
 export async function deleteAlbum(id: number): Promise<void> {
   try {
-    await __request(OpenAPI, {
-      method: "DELETE",
-      url: "/Album/{id}",
-      path: { id },
-    });
+    await AlbumService.deleteAlbum(id);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =

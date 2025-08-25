@@ -56,14 +56,12 @@ describe("albums api", () => {
     const { createAlbum } = await import("../../src/shared/api/albums");
     await expect(createAlbum("New")).resolves.toEqual(mockAlbum);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(
-      "https://api.example.com/Album/CreateAlbum?albumName=New",
-    );
+    expect(url).toBe("https://api.example.com/Album");
     expect(init?.method).toBe("POST");
-    expect(init?.body).toBeUndefined();
-    expect((init?.headers as Headers).get("Authorization")).toBe(
-      "Bearer token",
-    );
+    expect(init?.body).toBe(JSON.stringify({ title: "New" }));
+    const headers = init?.headers as Headers;
+    expect(headers.get("Content-Type")).toBe("application/json");
+    expect(headers.get("Authorization")).toBe("Bearer token");
   });
 
   it("deletes album", async () => {

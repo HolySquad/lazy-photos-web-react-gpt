@@ -17,6 +17,23 @@ export class AlbumService {
         });
     }
     /**
+     * @param requestBody
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static createAlbum(
+        requestBody: {
+            title: string;
+        },
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Album',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
      * @param id
      * @returns any OK
      * @throws ApiError
@@ -33,18 +50,18 @@ export class AlbumService {
         });
     }
     /**
-     * @param albumName
+     * @param id
      * @returns any OK
      * @throws ApiError
      */
-    public static postAlbumCreateAlbum(
-        albumName?: string,
+    public static deleteAlbum(
+        id: number,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Album/CreateAlbum',
-            query: {
-                'albumName': albumName,
+            method: 'DELETE',
+            url: '/Album/{id}',
+            path: {
+                'id': id,
             },
         });
     }
