@@ -3,10 +3,15 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
+import { createAlbum, getAlbums } from "@/shared/api/albums";
 
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
@@ -25,6 +30,26 @@ export default function Home() {
     queryKey: ["photos"],
     queryFn: getPhotos,
     enabled: !!username && active === "photos",
+  });
+
+  const {
+    data: albums = [],
+    isLoading: albumsLoading,
+    isError: albumsError,
+  } = useQuery({
+    queryKey: ["albums"],
+    queryFn: getAlbums,
+    enabled: !!username && active === "albums",
+  });
+
+  const queryClient = useQueryClient();
+  const [albumName, setAlbumName] = useState("");
+  const createAlbumMutation = useMutation({
+    mutationFn: createAlbum,
+    onSuccess: () => {
+      setAlbumName("");
+      queryClient.invalidateQueries({ queryKey: ["albums"] });
+    },
   });
 
   if (!username) {
@@ -56,27 +81,6 @@ export default function Home() {
       </main>
     );
   }
-
-  const albums = [
-    {
-      id: 1,
-      name: "Vacation",
-      count: 42,
-      thumb: "https://picsum.photos/seed/album1/300/200",
-    },
-    {
-      id: 2,
-      name: "Family",
-      count: 18,
-      thumb: "https://picsum.photos/seed/album2/300/200",
-    },
-    {
-      id: 3,
-      name: "Work",
-      count: 5,
-      thumb: "https://picsum.photos/seed/album3/300/200",
-    },
-  ];
 
   return (
     <main className={styles.appContainer}>
@@ -114,20 +118,45 @@ export default function Home() {
               ))}
             </div>
           )
+        ) : albumsLoading ? (
+          <p>Loading albums...</p>
+        ) : albumsError ? (
+          <p>Failed to load albums</p>
         ) : (
-          <div className={styles.albumGrid}>
-            {albums.map((album) => (
-              <div key={album.id} className={styles.albumItem}>
-                <img src={album.thumb} alt={`${album.name} cover`} />
-                <div className={styles.albumInfo}>
-                  <span className={styles.albumName}>{album.name}</span>
-                  <span className={styles.albumCount}>
-                    {album.count} photos
-                  </span>
+          <>
+            <form
+              className={styles.albumForm}
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (albumName) {
+                  createAlbumMutation.mutate(albumName);
+                }
+              }}
+            >
+              <input
+                className={styles.albumInput}
+                value={albumName}
+                onChange={(e) => setAlbumName(e.target.value)}
+                placeholder="New album name"
+              />
+              <button type="submit">Create</button>
+            </form>
+            <div className={styles.albumGrid}>
+              {albums.map((album) => (
+                <div key={album.id} className={styles.albumItem}>
+                  {album.thumb && (
+                    <img src={album.thumb} alt={`${album.name} cover`} />
+                  )}
+                  <div className={styles.albumInfo}>
+                    <span className={styles.albumName}>{album.name}</span>
+                    <span className={styles.albumCount}>
+                      {album.count} photos
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </main>
