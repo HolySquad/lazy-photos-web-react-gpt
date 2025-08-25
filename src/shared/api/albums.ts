@@ -45,7 +45,11 @@ export async function getAlbum(id: number): Promise<Album> {
 
 export async function createAlbum(albumName: string): Promise<Album> {
   try {
-    const res = await AlbumService.postAlbumCreateAlbum(albumName);
+    const res = await __request(OpenAPI, {
+      method: "POST",
+      url: "/Album",
+      query: { albumName },
+    });
     return AlbumSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
