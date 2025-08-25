@@ -295,6 +295,25 @@
   background: rgba(0, 255, 0, 0.1);
 }
 
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.prevButton {
+  left: 1rem;
+}
+
+.nextButton {
+  right: 1rem;
+}
+
 .albumList {
   display: flex;
   flex-direction: column;
