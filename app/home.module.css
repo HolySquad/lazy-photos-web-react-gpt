@@ -132,6 +132,16 @@
   display: block;
 }
 
+.albumPlaceholder {
+  width: 100%;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  color: #777;
+}
+
 .albumInfo {
   padding: 0.5rem;
   display: flex;
@@ -145,6 +155,69 @@
 
 .albumCount {
   font-size: 0.875rem;
+}
+
+.createAlbum {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #00ff00;
+  background: none;
+  color: #00ff00;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #000;
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input {
+  padding: 0.5rem;
+  border: 1px solid #00ff00;
+  background: transparent;
+  color: inherit;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modalButton {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modalConfirm {
+  background: #00ff00;
+  color: #000;
+  border: none;
+}
+
+.modalCancel {
+  border: 2px solid #00ff00;
+  background: none;
+  color: #00ff00;
 }
 
 @media (max-width: 600px) {
