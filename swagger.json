@@ -16,6 +16,27 @@
             "description": "OK"
           }
         }
+      },
+      "post": {
+        "tags": [
+          "Album"
+        ],
+        "operationId": "CreateAlbum",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAlbumRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/Album/{id}": {
@@ -32,27 +53,6 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/Album/CreateAlbum": {
-      "post": {
-        "tags": [
-          "Album"
-        ],
-        "parameters": [
-          {
-            "name": "albumName",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -527,6 +527,14 @@
             "type": "string",
             "nullable": true
           }
+        },
+        "additionalProperties": false
+      },
+      "CreateAlbumRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" }
         },
         "additionalProperties": false
       },

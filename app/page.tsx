@@ -12,6 +12,8 @@ import { getAlbums, createAlbum } from "@/shared/api/albums";
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
   const [active, setActive] = useState<"photos" | "albums">("photos");
+  const [showAlbumModal, setShowAlbumModal] = useState(false);
+  const [albumTitle, setAlbumTitle] = useState("");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -39,12 +41,17 @@ export default function Home() {
     enabled: !!username && active === "albums",
   });
 
-  const handleCreateAlbum = async () => {
-    const name = prompt("Album name");
-    if (!name) return;
+  const openCreateAlbum = () => {
+    setAlbumTitle("");
+    setShowAlbumModal(true);
+  };
+
+  const submitCreateAlbum = async () => {
+    if (!albumTitle.trim()) return;
     try {
-      await createAlbum(name);
+      await createAlbum(albumTitle.trim());
       queryClient.invalidateQueries({ queryKey: ["albums"] });
+      setShowAlbumModal(false);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to create album");
     }
@@ -122,9 +129,28 @@ export default function Home() {
           <p>Failed to load albums</p>
         ) : (
           <>
-            <button className={styles.createAlbum} onClick={handleCreateAlbum}>
+            <button className={styles.createAlbum} onClick={openCreateAlbum}>
               Create album
             </button>
+            {showAlbumModal && (
+              <div className={styles.modalOverlay}>
+                <div className={styles.modal}>
+                  <h3>Create album</h3>
+                  <input
+                    className={styles.input}
+                    value={albumTitle}
+                    onChange={(e) => setAlbumTitle(e.target.value)}
+                    placeholder="Album name"
+                  />
+                  <div className={styles.modalActions}>
+                    <button onClick={submitCreateAlbum}>Create</button>
+                    <button onClick={() => setShowAlbumModal(false)}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className={styles.albumGrid}>
               {albums.map((album) => (
                 <div key={album.id} className={styles.albumItem}>
