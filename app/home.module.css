@@ -147,6 +147,15 @@
   font-size: 0.875rem;
 }
 
+.albumAdd {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  background: none;
+  cursor: pointer;
+}
+
 @media (max-width: 600px) {
   .title {
     font-size: 2rem;
