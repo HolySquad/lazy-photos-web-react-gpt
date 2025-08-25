@@ -23,5 +23,4 @@ export type { TwoFactorResponse } from './models/TwoFactorResponse';
 export { AlbumService } from './services/AlbumService';
 export { LazyMyPhotosApiService } from './services/LazyMyPhotosApiService';
 export { PhotoService } from './services/PhotoService';
-export { PhotoContentService } from './services/PhotoContentService';
 export { UserService } from './services/UserService';

@@ -7,13 +7,19 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class PhotoService {
     /**
+     * @param offset
      * @returns any OK
      * @throws ApiError
      */
-    public static getApiPhoto(): CancelablePromise<any> {
+    public static latestPhotos(
+        offset?: number,
+    ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/Photo',
+            url: '/Photo',
+            query: {
+                'offset': offset,
+            },
         });
     }
     /**
@@ -21,14 +27,14 @@ export class PhotoService {
      * @returns any OK
      * @throws ApiError
      */
-    public static postApiPhoto(
+    public static uploadPhoto(
         formData?: {
             file?: Blob;
         },
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/Photo',
+            url: '/Photo',
             formData: formData,
             mediaType: 'multipart/form-data',
         });
@@ -38,12 +44,12 @@ export class PhotoService {
      * @returns any OK
      * @throws ApiError
      */
-    public static getApiPhoto1(
+    public static getPhotoById(
         id: number,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/Photo/{id}',
+            url: '/Photo/{id}',
             path: {
                 'id': id,
             },

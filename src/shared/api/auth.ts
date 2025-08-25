@@ -31,11 +31,7 @@ export async function loginUser(
   data: LoginRequest,
 ): Promise<AccessTokenResponse> {
   try {
-    return await LazyMyPhotosApiService.postLogin(
-      undefined,
-      undefined,
-      data,
-    );
+    return await LazyMyPhotosApiService.postLogin(data);
   } catch (err) {
     const body = (err as any)?.body as
       | { errors?: Record<string, string[]>; message?: string }
