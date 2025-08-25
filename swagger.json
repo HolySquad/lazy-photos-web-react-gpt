@@ -10,10 +10,38 @@
         "tags": [
           "Album"
         ],
+        "summary": "Retrieves a list of available albums.",
+        "description": "This method returns all albums currently available in the system. If no albums are available,\r\n            the response will contain an empty list.",
         "operationId": "GetAlbums",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlbumModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlbumModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlbumModel"
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -21,20 +49,49 @@
         "tags": [
           "Album"
         ],
-        "operationId": "CreateAlbum",
+        "summary": "Creates a new album with the specified name and associated photos.",
+        "description": "This method creates a new album and associates the specified photos with it.  The album is\r\n            created asynchronously, and the operation can be canceled using the provided ct.",
+        "parameters": [
+          {
+            "name": "albumName",
+            "in": "query",
+            "description": "The name of the album to create. Cannot be null or empty.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
+          "description": "An array of photo IDs to associate with the album. The array can be empty, but cannot be null.",
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "title": { "type": "string" }
-                },
-                "required": ["title"]
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -48,6 +105,8 @@
         "tags": [
           "Album"
         ],
+        "summary": "Retrieves an album by its unique identifier.",
+        "description": "The id must correspond to an existing album in the system. If the album does\r\n            not exist, the response will indicate an error.",
         "operationId": "GetAlbumById",
         "parameters": [
           {
@@ -55,26 +114,46 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumModel"
+                }
+              }
+            }
           }
         }
-      },
+      }
+    },
+    "/Album/{albumId}": {
       "delete": {
         "tags": [
           "Album"
         ],
-        "operationId": "DeleteAlbum",
+        "summary": "Deletes the album with the specified identifier.",
+        "description": "This operation is idempotent. If the specified album does not exist, the method still returns\r\n            Microsoft.AspNetCore.Mvc.NoContentResult.",
         "parameters": [
           {
-            "name": "id",
+            "name": "albumId",
             "in": "path",
+            "description": "The unique identifier of the album to delete.",
             "required": true,
             "schema": {
               "type": "integer",
@@ -528,6 +607,33 @@
   },
   "components": {
     "schemas": {
+      "AlbumModel": {
+        "required": [
+          "id",
+          "title",
+          "photoCount"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "photoCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "thumbnailPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
       "AccessTokenResponse": {
         "required": [
           "accessToken",

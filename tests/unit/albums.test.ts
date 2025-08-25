@@ -35,12 +35,12 @@ describe("albums api", () => {
     );
   });
 
-  it("creates album with title", async () => {
+  it("fetches album by id", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     (globalThis as any).document = { cookie: "accessToken=token" };
     const mockAlbum = {
-      id: 2,
-      title: "New",
+      id: 3,
+      title: "Trip",
       photoCount: 0,
       thumbnailPath: null,
     };
@@ -53,12 +53,34 @@ describe("albums api", () => {
       text: async () => "",
     });
     (global as any).fetch = mockFetch;
-    const { createAlbum } = await import("../../src/shared/api/albums");
-    await expect(createAlbum("New")).resolves.toEqual(mockAlbum);
+    const { getAlbum } = await import("../../src/shared/api/albums");
+    await expect(getAlbum(3)).resolves.toEqual(mockAlbum);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe("https://api.example.com/Album");
+    expect(url).toBe("https://api.example.com/Album/3");
+    expect(init?.method).toBe("GET");
+    expect((init?.headers as Headers).get("Authorization")).toBe(
+      "Bearer token",
+    );
+  });
+
+  it("creates album with query name and photo ids", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => undefined,
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const { createAlbum } = await import("../../src/shared/api/albums");
+    await expect(createAlbum("New", [1, 2])).resolves.toBeUndefined();
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe("https://api.example.com/Album?albumName=New");
     expect(init?.method).toBe("POST");
-    expect(init?.body).toBe(JSON.stringify({ title: "New" }));
+    expect(init?.body).toBe(JSON.stringify([1, 2]));
     const headers = init?.headers as Headers;
     expect(headers.get("Content-Type")).toBe("application/json");
     expect(headers.get("Authorization")).toBe("Bearer token");
@@ -99,6 +121,9 @@ describe("albums api", () => {
     (global as any).fetch = mockFetch;
     const { createAlbum } = await import("../../src/shared/api/albums");
     await expect(createAlbum("test")).rejects.toThrow("fail");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe("https://api.example.com/Album?albumName=test");
+    expect(init?.body).toBe(JSON.stringify([]));
   });
 });
 

@@ -31,7 +31,7 @@ export async function getAlbums(): Promise<Album[]> {
 
 export async function getAlbum(id: number): Promise<Album> {
   try {
-    const res = await AlbumService.getAlbumById(id);
+    const res = await AlbumService.getAlbumById(String(id));
     return AlbumSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
@@ -42,10 +42,12 @@ export async function getAlbum(id: number): Promise<Album> {
   }
 }
 
-export async function createAlbum(title: string): Promise<Album> {
+export async function createAlbum(
+  title: string,
+  photoIds: number[] = [],
+): Promise<void> {
   try {
-    const res = await AlbumService.createAlbum({ title });
-    return AlbumSchema.parse(res);
+    await AlbumService.postAlbum(title, photoIds);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
