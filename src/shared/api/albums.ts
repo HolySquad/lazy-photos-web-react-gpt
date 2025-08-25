@@ -69,3 +69,28 @@ export async function deleteAlbum(id: number): Promise<void> {
   }
 }
 
+export async function addPhotoToAlbum(
+  albumId: number,
+  photoId: number,
+): Promise<void> {
+  try {
+    const token = getCookie("accessToken");
+    const headers = new Headers({ "Content-Type": "application/json" });
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    const res = await fetch(`${API_BASE_URL}/Album/${albumId}/photos`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify([photoId]),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => undefined);
+      const message = body?.message ?? res.statusText;
+      throw new Error(message);
+    }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to add photo to album";
+    throw new Error(message);
+  }
+}
+

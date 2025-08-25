@@ -220,6 +220,105 @@
   color: #00ff00;
 }
 
+.photoPreviewOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.photoPreview {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.closePreview {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.previewMenuWrapper {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.menuDropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 0.5rem;
+  background: #000;
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.menuDropdown button {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menuDropdown button:hover {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.albumList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.albumSelect {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid #00ff00;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+.albumSelect img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
 @media (max-width: 600px) {
   .title {
     font-size: 2rem;

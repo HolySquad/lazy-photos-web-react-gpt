@@ -6,14 +6,22 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
-import { getPhotos } from "@/shared/api/photos";
-import { getAlbums, createAlbum } from "@/shared/api/albums";
+import { getPhotos, Photo } from "@/shared/api/photos";
+import {
+  getAlbums,
+  createAlbum,
+  addPhotoToAlbum,
+  Album,
+} from "@/shared/api/albums";
 
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
   const [active, setActive] = useState<"photos" | "albums">("photos");
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [albumTitle, setAlbumTitle] = useState("");
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showAlbumPicker, setShowAlbumPicker] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -38,7 +46,7 @@ export default function Home() {
   } = useQuery({
     queryKey: ["albums"],
     queryFn: getAlbums,
-    enabled: !!username && active === "albums",
+    enabled: !!username && (active === "albums" || showAlbumPicker),
   });
 
   const openCreateAlbum = () => {
@@ -119,6 +127,7 @@ export default function Home() {
                   key={photo.id}
                   src={photo.photoUrl}
                   alt={photo.displayFileName}
+                  onClick={() => setSelectedPhoto(photo)}
                 />
               ))}
             </div>
@@ -179,6 +188,100 @@ export default function Home() {
           </>
         )}
       </section>
+      {selectedPhoto && (
+        <div
+          className={styles.photoPreviewOverlay}
+          onClick={() => {
+            setSelectedPhoto(null);
+            setMenuOpen(false);
+            setShowAlbumPicker(false);
+          }}
+        >
+          <div
+            className={styles.photoPreview}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closePreview}
+              onClick={() => {
+                setSelectedPhoto(null);
+                setMenuOpen(false);
+                setShowAlbumPicker(false);
+              }}
+            >
+              ×
+            </button>
+            <img
+              src={selectedPhoto.photoUrl}
+              alt={selectedPhoto.displayFileName}
+              className={styles.previewImage}
+            />
+            <div className={styles.previewMenuWrapper}>
+              <button
+                className={styles.menuButton}
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="More actions"
+              >
+                ⋮
+              </button>
+              {menuOpen && (
+                <div className={styles.menuDropdown}>
+                  <button
+                    onClick={() => {
+                      setShowAlbumPicker(true);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Add to album
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          {showAlbumPicker && (
+            <div className={styles.modalOverlay}>
+              <div className={styles.modal}>
+                <h3>Select album</h3>
+                <div className={styles.albumList}>
+                  {albums.map((album: Album) => (
+                    <button
+                      key={album.id}
+                      className={styles.albumSelect}
+                      onClick={async () => {
+                        try {
+                          await addPhotoToAlbum(album.id, selectedPhoto.id);
+                          setShowAlbumPicker(false);
+                        } catch (err) {
+                          alert(
+                            err instanceof Error
+                              ? err.message
+                              : "Failed to add photo",
+                          );
+                        }
+                      }}
+                    >
+                      {album.thumbnailPath ? (
+                        <img src={album.thumbnailPath} alt={album.title} />
+                      ) : (
+                        <div className={styles.albumPlaceholder}>No image</div>
+                      )}
+                      <span>{album.title}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.modalActions}>
+                  <button
+                    className={`${styles.modalButton} ${styles.modalCancel}`}
+                    onClick={() => setShowAlbumPicker(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 }
