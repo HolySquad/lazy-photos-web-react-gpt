@@ -10,7 +10,12 @@ describe("albums api", () => {
   it("fetches albums with auth header", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     (globalThis as any).document = { cookie: "accessToken=token" };
-    const mockAlbum = { id: 1, name: "Vacation" };
+    const mockAlbum = {
+      id: 1,
+      title: "Vacation",
+      photoCount: 0,
+      thumbnailPath: null,
+    };
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -30,10 +35,15 @@ describe("albums api", () => {
     );
   });
 
-  it("creates album with name", async () => {
+  it("creates album with title", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     (globalThis as any).document = { cookie: "accessToken=token" };
-    const mockAlbum = { id: 2, name: "New" };
+    const mockAlbum = {
+      id: 2,
+      title: "New",
+      photoCount: 0,
+      thumbnailPath: null,
+    };
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,

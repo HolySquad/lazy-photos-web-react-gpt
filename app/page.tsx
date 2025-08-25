@@ -128,8 +128,16 @@ export default function Home() {
             <div className={styles.albumGrid}>
               {albums.map((album) => (
                 <div key={album.id} className={styles.albumItem}>
+                  {album.thumbnailPath ? (
+                    <img src={album.thumbnailPath} alt={album.title} />
+                  ) : (
+                    <div className={styles.albumPlaceholder}>No image</div>
+                  )}
                   <div className={styles.albumInfo}>
-                    <span className={styles.albumName}>{album.name}</span>
+                    <span className={styles.albumName}>{album.title}</span>
+                    <span className={styles.albumCount}>
+                      {album.photoCount} photos
+                    </span>
                   </div>
                 </div>
               ))}

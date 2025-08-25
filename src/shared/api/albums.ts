@@ -9,7 +9,9 @@ OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
 const AlbumSchema = z.object({
   id: z.number(),
-  name: z.string(),
+  title: z.string(),
+  photoCount: z.number(),
+  thumbnailPath: z.string().nullable(),
 });
 
 const AlbumsSchema = z.array(AlbumSchema);
