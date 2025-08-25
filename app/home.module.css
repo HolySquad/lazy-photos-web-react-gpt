@@ -112,17 +112,6 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
-.albumForm {
-  margin-bottom: 1rem;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.albumInput {
-  flex: 1;
-  padding: 0.5rem;
-}
-
 .photoGrid img {
   width: 100%;
   height: auto;
@@ -156,6 +145,15 @@
 
 .albumCount {
   font-size: 0.875rem;
+}
+
+.albumAdd {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  background: none;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {

@@ -43,11 +43,9 @@ export default function Home() {
   });
 
   const queryClient = useQueryClient();
-  const [albumName, setAlbumName] = useState("");
   const createAlbumMutation = useMutation({
     mutationFn: createAlbum,
     onSuccess: () => {
-      setAlbumName("");
       queryClient.invalidateQueries({ queryKey: ["albums"] });
     },
   });
@@ -123,40 +121,31 @@ export default function Home() {
         ) : albumsError ? (
           <p>Failed to load albums</p>
         ) : (
-          <>
-            <form
-              className={styles.albumForm}
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (albumName) {
-                  createAlbumMutation.mutate(albumName);
+          <div className={styles.albumGrid}>
+            <button
+              className={`${styles.albumItem} ${styles.albumAdd}`}
+              onClick={() => {
+                const name = window.prompt("Album name?");
+                if (name) {
+                  createAlbumMutation.mutate(name);
                 }
               }}
+              aria-label="Create album"
             >
-              <input
-                className={styles.albumInput}
-                value={albumName}
-                onChange={(e) => setAlbumName(e.target.value)}
-                placeholder="New album name"
-              />
-              <button type="submit">Create</button>
-            </form>
-            <div className={styles.albumGrid}>
-              {albums.map((album) => (
-                <div key={album.id} className={styles.albumItem}>
-                  {album.thumb && (
-                    <img src={album.thumb} alt={`${album.name} cover`} />
-                  )}
-                  <div className={styles.albumInfo}>
-                    <span className={styles.albumName}>{album.name}</span>
-                    <span className={styles.albumCount}>
-                      {album.count} photos
-                    </span>
-                  </div>
+              +
+            </button>
+            {albums.map((album) => (
+              <div key={album.id} className={styles.albumItem}>
+                {album.thumb && (
+                  <img src={album.thumb} alt={`${album.name} cover`} />
+                )}
+                <div className={styles.albumInfo}>
+                  <span className={styles.albumName}>{album.name}</span>
+                  <span className={styles.albumCount}>{album.count} photos</span>
                 </div>
-              ))}
-            </div>
-          </>
+              </div>
+            ))}
+          </div>
         )}
       </section>
     </main>
