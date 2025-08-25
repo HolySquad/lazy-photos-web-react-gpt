@@ -147,6 +147,16 @@
   font-size: 0.875rem;
 }
 
+.createAlbum {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #00ff00;
+  background: none;
+  color: #00ff00;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 @media (max-width: 600px) {
   .title {
     font-size: 2rem;

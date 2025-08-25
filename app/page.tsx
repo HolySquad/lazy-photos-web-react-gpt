@@ -3,14 +3,16 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
+import { getAlbums, createAlbum } from "@/shared/api/albums";
 
 export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
   const [active, setActive] = useState<"photos" | "albums">("photos");
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const update = () => setUsername(getCookie("username"));
@@ -26,6 +28,27 @@ export default function Home() {
     queryFn: getPhotos,
     enabled: !!username && active === "photos",
   });
+
+  const {
+    data: albums = [],
+    isLoading: albumsLoading,
+    isError: albumsError,
+  } = useQuery({
+    queryKey: ["albums"],
+    queryFn: getAlbums,
+    enabled: !!username && active === "albums",
+  });
+
+  const handleCreateAlbum = async () => {
+    const name = prompt("Album name");
+    if (!name) return;
+    try {
+      await createAlbum(name);
+      queryClient.invalidateQueries({ queryKey: ["albums"] });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to create album");
+    }
+  };
 
   if (!username) {
     const images = Array.from({ length: 6 }).map((_, i) => (
@@ -56,27 +79,6 @@ export default function Home() {
       </main>
     );
   }
-
-  const albums = [
-    {
-      id: 1,
-      name: "Vacation",
-      count: 42,
-      thumb: "https://picsum.photos/seed/album1/300/200",
-    },
-    {
-      id: 2,
-      name: "Family",
-      count: 18,
-      thumb: "https://picsum.photos/seed/album2/300/200",
-    },
-    {
-      id: 3,
-      name: "Work",
-      count: 5,
-      thumb: "https://picsum.photos/seed/album3/300/200",
-    },
-  ];
 
   return (
     <main className={styles.appContainer}>
@@ -114,20 +116,25 @@ export default function Home() {
               ))}
             </div>
           )
+        ) : albumsLoading ? (
+          <p>Loading albums...</p>
+        ) : albumsError ? (
+          <p>Failed to load albums</p>
         ) : (
-          <div className={styles.albumGrid}>
-            {albums.map((album) => (
-              <div key={album.id} className={styles.albumItem}>
-                <img src={album.thumb} alt={`${album.name} cover`} />
-                <div className={styles.albumInfo}>
-                  <span className={styles.albumName}>{album.name}</span>
-                  <span className={styles.albumCount}>
-                    {album.count} photos
-                  </span>
+          <>
+            <button className={styles.createAlbum} onClick={handleCreateAlbum}>
+              Create album
+            </button>
+            <div className={styles.albumGrid}>
+              {albums.map((album) => (
+                <div key={album.id} className={styles.albumItem}>
+                  <div className={styles.albumInfo}>
+                    <span className={styles.albumName}>{album.name}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </main>
