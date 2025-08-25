@@ -10,26 +10,10 @@ export class AlbumService {
      * @returns any OK
      * @throws ApiError
      */
-    public static getApiAlbum(): CancelablePromise<any> {
+    public static getAlbums(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/Album',
-        });
-    }
-    /**
-     * @param albumName
-     * @returns any OK
-     * @throws ApiError
-     */
-    public static postApiAlbum(
-        albumName?: string,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/Album',
-            query: {
-                'albumName': albumName,
-            },
+            url: '/Album',
         });
     }
     /**
@@ -37,14 +21,30 @@ export class AlbumService {
      * @returns any OK
      * @throws ApiError
      */
-    public static getApiAlbum1(
+    public static getAlbumById(
         id: number,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/Album/{id}',
+            url: '/Album/{id}',
             path: {
                 'id': id,
+            },
+        });
+    }
+    /**
+     * @param albumName
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static postAlbumCreateAlbum(
+        albumName?: string,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Album/CreateAlbum',
+            query: {
+                'albumName': albumName,
             },
         });
     }

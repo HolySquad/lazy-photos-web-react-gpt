@@ -29,7 +29,7 @@ export type Photo = z.infer<typeof PhotoSchema>;
 
 export async function getPhotos(): Promise<Photo[]> {
   try {
-    const res = await PhotoService.getApiPhoto();
+    const res = await PhotoService.latestPhotos();
     return PhotosSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;

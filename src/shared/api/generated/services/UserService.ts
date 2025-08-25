@@ -10,10 +10,10 @@ export class UserService {
      * @returns any OK
      * @throws ApiError
      */
-    public static getApiUserCurrentUser(): CancelablePromise<any> {
+    public static currentUser(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/User/currentUser',
+            url: '/User/currentUser',
         });
     }
 }

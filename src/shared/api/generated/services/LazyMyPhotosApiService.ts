@@ -23,7 +23,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postRegister(
-        requestBody?: RegisterRequest,
+        requestBody: RegisterRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -36,16 +36,16 @@ export class LazyMyPhotosApiService {
         });
     }
     /**
+     * @param requestBody
      * @param useCookies
      * @param useSessionCookies
-     * @param requestBody
      * @returns AccessTokenResponse OK
      * @throws ApiError
      */
     public static postLogin(
+        requestBody: LoginRequest,
         useCookies?: boolean,
         useSessionCookies?: boolean,
-        requestBody?: LoginRequest,
     ): CancelablePromise<AccessTokenResponse> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -64,7 +64,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postRefresh(
-        requestBody?: RefreshRequest,
+        requestBody: RefreshRequest,
     ): CancelablePromise<AccessTokenResponse> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -81,8 +81,8 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static mapIdentityApiConfirmEmail(
-        userId?: string,
-        code?: string,
+        userId: string,
+        code: string,
         changedEmail?: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
@@ -101,7 +101,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postResendConfirmationEmail(
-        requestBody?: ResendConfirmationEmailRequest,
+        requestBody: ResendConfirmationEmailRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -116,7 +116,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postForgotPassword(
-        requestBody?: ForgotPasswordRequest,
+        requestBody: ForgotPasswordRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -134,7 +134,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postResetPassword(
-        requestBody?: ResetPasswordRequest,
+        requestBody: ResetPasswordRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -152,7 +152,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postManage2Fa(
-        requestBody?: TwoFactorRequest,
+        requestBody: TwoFactorRequest,
     ): CancelablePromise<TwoFactorResponse> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -185,7 +185,7 @@ export class LazyMyPhotosApiService {
      * @throws ApiError
      */
     public static postManageInfo(
-        requestBody?: InfoRequest,
+        requestBody: InfoRequest,
     ): CancelablePromise<InfoResponse> {
         return __request(OpenAPI, {
             method: 'POST',
