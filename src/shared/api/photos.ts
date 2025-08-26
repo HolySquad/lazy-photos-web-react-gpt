@@ -29,7 +29,13 @@ export const PhotoSchema = z.object({
 const PhotosSchema = z.array(PhotoSchema);
 export type Photo = z.infer<typeof PhotoSchema>;
 
-const UploadPhotoResultSchema = z.object({ id: z.number() });
+const UploadPhotoResultSchema = z.union([
+  z.object({ id: z.coerce.number() }),
+  z
+    .object({ photoId: z.coerce.number() })
+    .transform((d) => ({ id: d.photoId })),
+  z.coerce.number().transform((id) => ({ id })),
+]);
 
 export async function getPhotos(): Promise<Photo[]> {
   try {

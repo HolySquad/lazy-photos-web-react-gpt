@@ -105,6 +105,16 @@ describe("uploadPhoto", () => {
     );
   });
 
+  it("handles photoId response", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    setupDom({ accessToken: "token" });
+    const post = vi.fn().mockResolvedValue({ data: { photoId: 2 } });
+    (axios.post as any) = post;
+    const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
+    const { uploadPhoto } = await import("../../src/shared/api/photos");
+    await expect(uploadPhoto(file)).resolves.toBe(2);
+  });
+
   it("throws server message", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     setupDom({ accessToken: "token" });
