@@ -14,6 +14,9 @@ export type { HttpValidationProblemDetails } from './models/HttpValidationProble
 export type { InfoRequest } from './models/InfoRequest';
 export type { InfoResponse } from './models/InfoResponse';
 export type { LoginRequest } from './models/LoginRequest';
+export type { PhotoMetadata } from './models/PhotoMetadata';
+export type { PhotoModel } from './models/PhotoModel';
+export type { ProblemDetails } from './models/ProblemDetails';
 export type { RefreshRequest } from './models/RefreshRequest';
 export type { RegisterRequest } from './models/RegisterRequest';
 export type { ResendConfirmationEmailRequest } from './models/ResendConfirmationEmailRequest';
@@ -22,6 +25,7 @@ export type { TwoFactorRequest } from './models/TwoFactorRequest';
 export type { TwoFactorResponse } from './models/TwoFactorResponse';
 
 export { AlbumService } from './services/AlbumService';
+export { AlbumPhotosService } from './services/AlbumPhotosService';
 export { LazyMyPhotosApiService } from './services/LazyMyPhotosApiService';
 export { PhotoService } from './services/PhotoService';
 export { UserService } from './services/UserService';

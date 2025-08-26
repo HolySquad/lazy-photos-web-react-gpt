@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type AlbumModel = {
-    title: string | null;
-    photoCount: number;
+    title?: string | null;
+    photoCount?: number;
     thumbnailPath?: string | null;
-    id: number;
+    id?: number;
 };
 

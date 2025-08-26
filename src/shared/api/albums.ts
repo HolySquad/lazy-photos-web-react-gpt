@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { API_BASE_URL } from "../config";
 import { getCookie } from "../auth/session";
-import { OpenAPI, AlbumService } from "./generated";
+import { OpenAPI, AlbumService, AlbumPhotosService } from "./generated";
 
 OpenAPI.BASE = API_BASE_URL;
 OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
@@ -31,7 +31,7 @@ export async function getAlbums(): Promise<Album[]> {
 
 export async function getAlbum(id: number): Promise<Album> {
   try {
-    const res = await AlbumService.getAlbumById(String(id));
+    const res = await AlbumService.getAlbumById(id);
     return AlbumSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
@@ -74,22 +74,12 @@ export async function addPhotoToAlbum(
   photoId: number,
 ): Promise<void> {
   try {
-    const token = getCookie("accessToken");
-    const headers = new Headers({ "Content-Type": "application/json" });
-    if (token) headers.set("Authorization", `Bearer ${token}`);
-    const res = await fetch(`${API_BASE_URL}/Album/${albumId}/photos`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify([photoId]),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => undefined);
-      const message = body?.message ?? res.statusText;
-      throw new Error(message);
-    }
+    await AlbumPhotosService.postAlbumPhotosPhotos1(albumId, photoId);
   } catch (err) {
+    const body = (err as any)?.body as { message?: string } | undefined;
     const message =
-      err instanceof Error ? err.message : "Failed to add photo to album";
+      body?.message ??
+      (err instanceof Error ? err.message : "Failed to add photo to album");
     throw new Error(message);
   }
 }
