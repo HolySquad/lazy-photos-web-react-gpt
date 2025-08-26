@@ -123,12 +123,12 @@ describe("albums api", () => {
     const { addPhotoToAlbum } = await import("../../src/shared/api/albums");
     await addPhotoToAlbum(5, 10);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe("https://api.example.com/Album/5/photos");
+    expect(url).toBe("https://api.example.com/AlbumPhotos/5/photos/10");
     expect(init?.method).toBe("POST");
-    expect(init?.body).toBe(JSON.stringify([10]));
+    expect(init?.body).toBeUndefined();
     const headers = init?.headers as Headers;
     expect(headers.get("Authorization")).toBe("Bearer token");
-    expect(headers.get("Content-Type")).toBe("application/json");
+    expect(headers.get("Content-Type")).toBeNull();
   });
 
   it("throws createAlbum error message", async () => {
