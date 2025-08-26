@@ -6,15 +6,22 @@ import { OpenAPI, AlbumService, AlbumPhotosService } from "./generated";
 OpenAPI.BASE = API_BASE_URL;
 OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
+const AlbumPhotoSchema = z.object({
+  photoId: z.number(),
+  blobUrl: z.string().nullable(),
+});
+
 const AlbumSchema = z.object({
   id: z.number(),
   title: z.string(),
   photoCount: z.number(),
   thumbnailPath: z.string().nullable(),
+  albumPhotos: z.array(AlbumPhotoSchema).nullable().optional(),
 });
 
 const AlbumsSchema = z.array(AlbumSchema);
 export type Album = z.infer<typeof AlbumSchema>;
+export type AlbumPhoto = z.infer<typeof AlbumPhotoSchema>;
 
 export async function getAlbums(): Promise<Album[]> {
   try {
@@ -31,7 +38,7 @@ export async function getAlbums(): Promise<Album[]> {
 
 export async function getAlbum(id: number): Promise<Album> {
   try {
-    const res = await AlbumService.getAlbumById(id);
+    const res = await AlbumPhotosService.getAlbumById(id);
     return AlbumSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
@@ -83,4 +90,6 @@ export async function addPhotoToAlbum(
     throw new Error(message);
   }
 }
+
+
 

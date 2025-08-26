@@ -43,6 +43,9 @@ describe("albums api", () => {
       title: "Trip",
       photoCount: 0,
       thumbnailPath: null,
+      albumPhotos: [
+        { photoId: 1, blobUrl: "https://cdn.example.com/p.jpg" },
+      ],
     };
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -56,7 +59,7 @@ describe("albums api", () => {
     const { getAlbum } = await import("../../src/shared/api/albums");
     await expect(getAlbum(3)).resolves.toEqual(mockAlbum);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe("https://api.example.com/Album/3");
+    expect(url).toBe("https://api.example.com/AlbumPhotos/3/photos");
     expect(init?.method).toBe("GET");
     expect((init?.headers as Headers).get("Authorization")).toBe(
       "Bearer token",

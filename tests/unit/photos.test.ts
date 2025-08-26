@@ -156,4 +156,40 @@ describe("getPhotos", () => {
     expect(getCookie("accessToken")).toBe("newToken");
     expect(getCookie("refreshToken")).toBe("newRefresh");
   });
+
+  it("throws when refreshed tokens lack access token", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    setupDom();
+    const { setAuthSession } = await import(
+      "../../src/shared/auth/session"
+    );
+    setAuthSession("old", "refresh", "user");
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        json: async () => ({ message: "expired" }),
+        text: async () => "",
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        json: async () => ({
+          tokenType: "Bearer",
+          accessToken: null,
+          expiresIn: 3600,
+          refreshToken: "newRefresh",
+        }),
+        text: async () => "",
+      });
+    (global as any).fetch = mockFetch;
+    const { getPhotos } = await import("../../src/shared/api/photos");
+    await expect(getPhotos()).rejects.toThrow("Missing access token");
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
 });

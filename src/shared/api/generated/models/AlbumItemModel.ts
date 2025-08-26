@@ -2,12 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { AlbumPhotoData } from './AlbumPhotoData';
-export type AlbumModel = {
+export type AlbumItemModel = {
     title?: string | null;
     photoCount?: number;
     thumbnailPath?: string | null;
     id?: number;
-    albumPhotos?: Array<AlbumPhotoData> | null;
 };
 

@@ -21,7 +21,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AlbumModel"
+                    "$ref": "#/components/schemas/AlbumItemModel"
                   }
                 }
               },
@@ -29,7 +29,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AlbumModel"
+                    "$ref": "#/components/schemas/AlbumItemModel"
                   }
                 }
               },
@@ -37,7 +37,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AlbumModel"
+                    "$ref": "#/components/schemas/AlbumItemModel"
                   }
                 }
               }
@@ -96,57 +96,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          }
-        }
-      }
-    },
-    "/Album/{id}": {
-      "get": {
-        "tags": [
-          "Album"
-        ],
-        "summary": "Retrieves an album by its unique identifier.",
-        "description": "The id must correspond to an existing album in the system. If the album does\r\n            not exist, the response will indicate an error.",
-        "operationId": "GetAlbumById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The unique identifier of the album to retrieve.",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AlbumModel"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AlbumModel"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AlbumModel"
-                }
-              }
-            }
           }
         }
       }
@@ -297,6 +246,50 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/AlbumPhotos/{id}/photos": {
+      "get": {
+        "tags": [
+          "AlbumPhotos"
+        ],
+        "summary": "Retrieves an album by its unique identifier.",
+        "description": "The id must correspond to an existing album in the system. If the album does\r\n            not exist, the response will indicate an error.",
+        "operationId": "GetAlbumById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the album to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumModel"
+                }
+              }
+            }
           }
         }
       }
@@ -850,6 +843,28 @@
         },
         "additionalProperties": false
       },
+      "AlbumItemModel": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "photoCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "thumbnailPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
       "AlbumModel": {
         "type": "object",
         "properties": {
@@ -868,6 +883,27 @@
           "id": {
             "type": "integer",
             "format": "int64"
+          },
+          "albumPhotos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AlbumPhotoData"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AlbumPhotoData": {
+        "type": "object",
+        "properties": {
+          "photoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "blobUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

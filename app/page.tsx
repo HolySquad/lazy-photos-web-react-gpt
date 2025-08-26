@@ -157,8 +157,8 @@ export default function Home() {
               {photos.map((photo, i) => (
                 <img
                   key={photo.id}
-                  src={photo.photoUrl}
-                  alt={photo.displayFileName}
+                  src={photo.photoUrl ?? ""}
+                  alt={photo.displayFileName ?? ""}
                   onClick={() => setSelectedIndex(i)}
                 />
               ))}
@@ -202,7 +202,11 @@ export default function Home() {
             )}
             <div className={styles.albumGrid}>
               {albums.map((album) => (
-                <div key={album.id} className={styles.albumItem}>
+                <Link
+                  key={album.id}
+                  href={`/albums/${album.id}`}
+                  className={styles.albumItem}
+                >
                   {album.thumbnailPath ? (
                     <img src={album.thumbnailPath} alt={album.title} />
                   ) : (
@@ -214,7 +218,7 @@ export default function Home() {
                       {album.photoCount} photos
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </>
@@ -254,8 +258,8 @@ export default function Home() {
               ×
             </button>
             <img
-              src={selectedPhoto.photoUrl}
-              alt={selectedPhoto.displayFileName}
+              src={selectedPhoto.photoUrl ?? ""}
+              alt={selectedPhoto.displayFileName ?? ""}
               className={styles.previewImage}
             />
             <div className={styles.previewMenuWrapper}>
