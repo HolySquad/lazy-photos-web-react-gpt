@@ -46,3 +46,17 @@ export async function loginUser(
     throw new Error(message);
   }
 }
+
+export async function refreshAccessToken(
+  refreshToken: string,
+): Promise<AccessTokenResponse> {
+  try {
+    return await LazyMyPhotosApiService.postRefresh({ refreshToken });
+  } catch (err) {
+    const body = (err as any)?.body as { message?: string } | undefined;
+    const message =
+      body?.message ??
+      (err instanceof Error ? err.message : "Failed to refresh token");
+    throw new Error(message);
+  }
+}
