@@ -14,7 +14,7 @@ const PhotoMetadataSchema = z.object({
   isoCount: z.number(),
 });
 
-const PhotoSchema = z.object({
+export const PhotoSchema = z.object({
   id: z.number(),
   displayFileName: z.string(),
   photoUrl: z.string().url(),

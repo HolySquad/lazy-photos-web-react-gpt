@@ -202,7 +202,11 @@ export default function Home() {
             )}
             <div className={styles.albumGrid}>
               {albums.map((album) => (
-                <div key={album.id} className={styles.albumItem}>
+                <Link
+                  key={album.id}
+                  href={`/albums/${album.id}`}
+                  className={styles.albumItem}
+                >
                   {album.thumbnailPath ? (
                     <img src={album.thumbnailPath} alt={album.title} />
                   ) : (
@@ -214,7 +218,7 @@ export default function Home() {
                       {album.photoCount} photos
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </>

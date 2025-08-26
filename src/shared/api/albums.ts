@@ -2,6 +2,7 @@ import { z } from "zod";
 import { API_BASE_URL } from "../config";
 import { getCookie } from "../auth/session";
 import { OpenAPI, AlbumService, AlbumPhotosService } from "./generated";
+import { Photo, PhotoSchema } from "./photos";
 
 OpenAPI.BASE = API_BASE_URL;
 OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
@@ -80,6 +81,30 @@ export async function addPhotoToAlbum(
     const message =
       body?.message ??
       (err instanceof Error ? err.message : "Failed to add photo to album");
+    throw new Error(message);
+  }
+}
+
+export async function getAlbumPhotos(albumId: number): Promise<Photo[]> {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/AlbumPhotos/${albumId}/photos`,
+      {
+        method: "GET",
+        headers: new Headers({
+          Authorization: `Bearer ${getCookie("accessToken") || ""}`,
+        }),
+      },
+    );
+    const data = await res.json().catch(() => undefined);
+    if (!res.ok) {
+      const message = (data as any)?.message ?? res.statusText;
+      throw new Error(message);
+    }
+    return z.array(PhotoSchema).parse(data);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to load album photos";
     throw new Error(message);
   }
 }

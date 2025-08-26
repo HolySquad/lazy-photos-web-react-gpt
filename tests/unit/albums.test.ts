@@ -63,6 +63,43 @@ describe("albums api", () => {
     );
   });
 
+  it("fetches photos for an album", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
+    const mockPhoto = {
+      id: 4,
+      displayFileName: "p.jpg",
+      photoUrl: "https://cdn.example.com/p.jpg",
+      blobId: "b1",
+      userId: "u1",
+      createdAt: "2024-01-01",
+      photoMetadata: {
+        cameraModel: "cam",
+        aperture: "f/1.8",
+        shutterTime: "1/100",
+        focusRange: 10,
+        isoCount: 100,
+      },
+    };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => [mockPhoto],
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const { getAlbumPhotos } = await import("../../src/shared/api/albums");
+    await expect(getAlbumPhotos(9)).resolves.toEqual([mockPhoto]);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe("https://api.example.com/AlbumPhotos/9/photos");
+    expect(init?.method).toBe("GET");
+    expect((init?.headers as Headers).get("Authorization")).toBe(
+      "Bearer token",
+    );
+  });
+
   it("creates album with query name and photo ids", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     (globalThis as any).document = { cookie: "accessToken=token" };

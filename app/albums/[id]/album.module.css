@@ -1,0 +1,35 @@
+.main {
+  padding: 2rem;
+}
+
+.title {
+  color: #00ff00;
+  margin-bottom: 1rem;
+}
+
+.status {
+  color: #00ff00;
+  margin-bottom: 1rem;
+}
+
+.photoGrid {
+  width: 100%;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.photoGrid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.back {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
