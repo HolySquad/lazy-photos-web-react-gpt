@@ -25,6 +25,13 @@
   display: block;
 }
 
+.uploadProgress {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .back {
   display: inline-block;
   margin-top: 1rem;

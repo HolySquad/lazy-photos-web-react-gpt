@@ -1,3 +1,4 @@
+import axios from "axios";
 import { z } from "zod";
 import { API_BASE_URL } from "../config";
 import { getCookie, setAuthSession } from "../auth/session";
@@ -28,6 +29,8 @@ export const PhotoSchema = z.object({
 const PhotosSchema = z.array(PhotoSchema);
 export type Photo = z.infer<typeof PhotoSchema>;
 
+const UploadPhotoResultSchema = z.object({ id: z.number() });
+
 export async function getPhotos(): Promise<Photo[]> {
   try {
     const res = await PhotoService.latestPhotos();
@@ -41,7 +44,7 @@ export async function getPhotos(): Promise<Photo[]> {
       if (refreshToken) {
         try {
           const tokens = await refreshAccessToken(refreshToken);
-          if (!tokens.accessToken) {
+          if (!tokens || !tokens.accessToken) {
             throw new Error("Missing access token");
           }
           setAuthSession(
@@ -69,20 +72,36 @@ export async function getPhotos(): Promise<Photo[]> {
   }
 }
 
-export async function uploadPhoto(file: File): Promise<Photo> {
+export async function uploadPhoto(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<number> {
   try {
-    const res = await PhotoService.uploadPhoto({ file });
-    return PhotoSchema.parse(res);
-  } catch (err) {
-    const status = (err as any)?.status as number | undefined;
-    const body = (err as any)?.body as { message?: string } | undefined;
+    const token = getCookie("accessToken") || "";
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await axios.post(`${API_BASE_URL}/Photo`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (e) => {
+        if (onProgress && e.total) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      },
+    });
+    return UploadPhotoResultSchema.parse(res.data).id;
+  } catch (err: any) {
+    const status = err?.response?.status as number | undefined;
+    const body = err?.response?.data as { message?: string } | undefined;
     if (status === 401 && body?.message === "expired") {
       const refreshToken = getCookie("refreshToken");
       const username = getCookie("username") || "";
       if (refreshToken) {
         try {
           const tokens = await refreshAccessToken(refreshToken);
-          if (!tokens.accessToken) {
+          if (!tokens || !tokens.accessToken) {
             throw new Error("Missing access token");
           }
           setAuthSession(
@@ -90,10 +109,9 @@ export async function uploadPhoto(file: File): Promise<Photo> {
             tokens.refreshToken ?? refreshToken,
             username,
           );
-          const retry = await PhotoService.uploadPhoto({ file });
-          return PhotoSchema.parse(retry);
-        } catch (refreshErr) {
-          const rBody = (refreshErr as any)?.body as { message?: string } | undefined;
+          return await uploadPhoto(file, onProgress);
+        } catch (refreshErr: any) {
+          const rBody = refreshErr?.response?.data as { message?: string } | undefined;
           const rMessage =
             rBody?.message ??
             (refreshErr instanceof Error
@@ -110,11 +128,20 @@ export async function uploadPhoto(file: File): Promise<Photo> {
   }
 }
 
-export async function uploadPhotos(files: File[]): Promise<Photo[]> {
-  const uploaded: Photo[] = [];
-  for (const file of files) {
-    const photo = await uploadPhoto(file);
-    uploaded.push(photo);
+export async function uploadPhotos(
+  files: File[],
+  onProgress?: (percent: number) => void,
+): Promise<number[]> {
+  const ids: number[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const id = await uploadPhoto(files[i], (p) => {
+      if (onProgress) {
+        const total = files.length;
+        const percent = Math.round(((i + p / 100) / total) * 100);
+        onProgress(percent);
+      }
+    });
+    ids.push(id);
   }
-  return uploaded;
+  return ids;
 }

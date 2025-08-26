@@ -22,6 +22,7 @@ export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAlbumPicker, setShowAlbumPicker] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -90,11 +91,14 @@ export default function Home() {
     const files = e.target.files;
     if (!files?.length) return;
     try {
-      await uploadPhotos(Array.from(files));
+      setUploadProgress(0);
+      await uploadPhotos(Array.from(files), setUploadProgress);
       queryClient.invalidateQueries({ queryKey: ["photos"] });
       e.target.value = "";
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to upload photo");
+    } finally {
+      setUploadProgress(null);
     }
   };
 
@@ -169,6 +173,12 @@ export default function Home() {
           ) : (
             <>
               <input type="file" multiple onChange={handlePhotoUpload} />
+              {uploadProgress !== null && (
+                <div className={styles.uploadProgress}>
+                  <progress value={uploadProgress} max={100} />
+                  <span>{uploadProgress}%</span>
+                </div>
+              )}
               <div className={styles.photoGrid}>
                 {photos.map((photo, i) => (
                   <img
