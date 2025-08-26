@@ -1,3 +1,4 @@
+import axios from "axios";
 import { z } from "zod";
 import { API_BASE_URL } from "../config";
 import { getCookie, setAuthSession } from "../auth/session";
@@ -28,6 +29,14 @@ export const PhotoSchema = z.object({
 const PhotosSchema = z.array(PhotoSchema);
 export type Photo = z.infer<typeof PhotoSchema>;
 
+const UploadPhotoResultSchema = z.union([
+  z.object({ id: z.coerce.number() }),
+  z
+    .object({ photoId: z.coerce.number() })
+    .transform((d) => ({ id: d.photoId })),
+  z.coerce.number().transform((id) => ({ id })),
+]);
+
 export async function getPhotos(): Promise<Photo[]> {
   try {
     const res = await PhotoService.latestPhotos();
@@ -41,7 +50,7 @@ export async function getPhotos(): Promise<Photo[]> {
       if (refreshToken) {
         try {
           const tokens = await refreshAccessToken(refreshToken);
-          if (!tokens.accessToken) {
+          if (!tokens || !tokens.accessToken) {
             throw new Error("Missing access token");
           }
           setAuthSession(
@@ -67,4 +76,78 @@ export async function getPhotos(): Promise<Photo[]> {
       (err instanceof Error ? err.message : "Failed to load photos");
     throw new Error(message);
   }
+}
+
+export async function uploadPhoto(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<number> {
+  try {
+    const token = getCookie("accessToken") || "";
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await axios.post(`${API_BASE_URL}/Photo`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (e) => {
+        if (onProgress && e.total) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      },
+    });
+    return UploadPhotoResultSchema.parse(res.data).id;
+  } catch (err: any) {
+    const status = err?.response?.status as number | undefined;
+    const body = err?.response?.data as { message?: string } | undefined;
+    if (status === 401 && body?.message === "expired") {
+      const refreshToken = getCookie("refreshToken");
+      const username = getCookie("username") || "";
+      if (refreshToken) {
+        try {
+          const tokens = await refreshAccessToken(refreshToken);
+          if (!tokens || !tokens.accessToken) {
+            throw new Error("Missing access token");
+          }
+          setAuthSession(
+            tokens.accessToken,
+            tokens.refreshToken ?? refreshToken,
+            username,
+          );
+          return await uploadPhoto(file, onProgress);
+        } catch (refreshErr: any) {
+          const rBody = refreshErr?.response?.data as { message?: string } | undefined;
+          const rMessage =
+            rBody?.message ??
+            (refreshErr instanceof Error
+              ? refreshErr.message
+              : "Failed to upload photo");
+          throw new Error(rMessage);
+        }
+      }
+    }
+    const message =
+      body?.message ??
+      (err instanceof Error ? err.message : "Failed to upload photo");
+    throw new Error(message);
+  }
+}
+
+export async function uploadPhotos(
+  files: File[],
+  onProgress?: (percent: number) => void,
+): Promise<number[]> {
+  const ids: number[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const id = await uploadPhoto(files[i], (p) => {
+      if (onProgress) {
+        const total = files.length;
+        const percent = Math.round(((i + p / 100) / total) * 100);
+        onProgress(percent);
+      }
+    });
+    ids.push(id);
+  }
+  return ids;
 }

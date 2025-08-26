@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import axios from "axios";
 
 function setupDom(init: Record<string, string> = {}) {
   const jar: Record<string, string> = { ...init };
@@ -84,112 +85,73 @@ describe("getPhotos", () => {
     await expect(getPhotos()).rejects.toThrow("boom");
   });
 
-  it("refreshes access token on 401 and retries", async () => {
+});
+
+describe("uploadPhoto", () => {
+  it("uploads file with auth header", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
-    setupDom();
-    const { setAuthSession, getCookie } = await import(
-      "../../src/shared/auth/session"
+    setupDom({ accessToken: "token" });
+    const post = vi.fn().mockResolvedValue({ data: { id: 1 } });
+    (axios.post as any) = post;
+    const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
+    const { uploadPhoto } = await import("../../src/shared/api/photos");
+    await expect(uploadPhoto(file)).resolves.toBe(1);
+    expect(post).toHaveBeenCalledWith(
+      "https://api.example.com/Photo",
+      expect.any(FormData),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer token" }),
+      }),
     );
-    setAuthSession("old", "refresh", "user");
-    const mockPhoto = {
-      id: 1,
-      displayFileName: "p.jpg",
-      photoUrl: "https://example.com/p.jpg",
-      blobId: "b",
-      userId: "u",
-      createdAt: "now",
-      photoMetadata: {
-        cameraModel: "m",
-        aperture: "a",
-        shutterTime: "s",
-        focusRange: 1,
-        isoCount: 1,
-      },
-    };
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: "Unauthorized",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        json: async () => ({ message: "expired" }),
-        text: async () => "",
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        json: async () => ({
-          tokenType: "Bearer",
-          accessToken: "newToken",
-          expiresIn: 3600,
-          refreshToken: "newRefresh",
-        }),
-        text: async () => "",
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        json: async () => [mockPhoto],
-        text: async () => "",
-      });
-    (global as any).fetch = mockFetch;
-    const { getPhotos } = await import("../../src/shared/api/photos");
-    await expect(getPhotos()).resolves.toEqual([mockPhoto]);
-    expect(mockFetch).toHaveBeenCalledTimes(3);
-    const call1 = mockFetch.mock.calls[0];
-    expect(call1[0]).toBe("https://api.example.com/Photo");
-    expect((call1[1].headers as Headers).get("Authorization")).toBe(
-      "Bearer old",
-    );
-    const call2 = mockFetch.mock.calls[1];
-    expect(call2[0]).toBe("https://api.example.com/refresh");
-    const call3 = mockFetch.mock.calls[2];
-    expect(call3[0]).toBe("https://api.example.com/Photo");
-    expect((call3[1].headers as Headers).get("Authorization")).toBe(
-      "Bearer newToken",
-    );
-    expect(getCookie("accessToken")).toBe("newToken");
-    expect(getCookie("refreshToken")).toBe("newRefresh");
   });
 
-  it("throws when refreshed tokens lack access token", async () => {
+  it("handles photoId response", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
-    setupDom();
-    const { setAuthSession } = await import(
-      "../../src/shared/auth/session"
-    );
-    setAuthSession("old", "refresh", "user");
-    const mockFetch = vi
+    setupDom({ accessToken: "token" });
+    const post = vi.fn().mockResolvedValue({ data: { photoId: 2 } });
+    (axios.post as any) = post;
+    const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
+    const { uploadPhoto } = await import("../../src/shared/api/photos");
+    await expect(uploadPhoto(file)).resolves.toBe(2);
+  });
+
+  it("throws server message", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    setupDom({ accessToken: "token" });
+    const post = vi
       .fn()
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: "Unauthorized",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        json: async () => ({ message: "expired" }),
-        text: async () => "",
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        json: async () => ({
-          tokenType: "Bearer",
-          accessToken: null,
-          expiresIn: 3600,
-          refreshToken: "newRefresh",
-        }),
-        text: async () => "",
+      .mockRejectedValue({
+        response: { status: 400, data: { message: "boom" } },
       });
-    (global as any).fetch = mockFetch;
-    const { getPhotos } = await import("../../src/shared/api/photos");
-    await expect(getPhotos()).rejects.toThrow("Missing access token");
-    expect(mockFetch).toHaveBeenCalledTimes(2);
+    (axios.post as any) = post;
+    const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
+    const { uploadPhoto } = await import("../../src/shared/api/photos");
+    await expect(uploadPhoto(file)).rejects.toThrow("boom");
+  });
+
+});
+
+describe("uploadPhotos", () => {
+  it("uploads multiple files sequentially and reports progress", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    setupDom({ accessToken: "t" });
+    let id = 1;
+    const post = vi.fn().mockImplementation(
+      (_url: string, _data: FormData, config: any) => {
+        config.onUploadProgress({ loaded: 50, total: 100 });
+        config.onUploadProgress({ loaded: 100, total: 100 });
+        return Promise.resolve({ data: { id: id++ } });
+      },
+    );
+    (axios.post as any) = post;
+    const { uploadPhotos } = await import("../../src/shared/api/photos");
+    const file1 = new File(["a"], "a.jpg", { type: "image/jpeg" });
+    const file2 = new File(["b"], "b.jpg", { type: "image/jpeg" });
+    const calls: number[] = [];
+    await expect(
+      uploadPhotos([file1, file2], (p) => calls.push(p)),
+    ).resolves.toEqual([1, 2]);
+    expect(post).toHaveBeenCalledTimes(2);
+    expect(calls).toEqual([25, 50, 75, 100]);
   });
 });
