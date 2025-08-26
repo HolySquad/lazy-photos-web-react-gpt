@@ -41,7 +41,14 @@ export async function getPhotos(): Promise<Photo[]> {
       if (refreshToken) {
         try {
           const tokens = await refreshAccessToken(refreshToken);
-          setAuthSession(tokens.accessToken, tokens.refreshToken ?? refreshToken, username);
+          if (!tokens.accessToken) {
+            throw new Error("Missing access token");
+          }
+          setAuthSession(
+            tokens.accessToken,
+            tokens.refreshToken ?? refreshToken,
+            username,
+          );
           const retry = await PhotoService.latestPhotos();
           return PhotosSchema.parse(retry);
         } catch (refreshErr) {
