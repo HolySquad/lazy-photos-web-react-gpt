@@ -8,7 +8,9 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { AccessTokenResponse } from './models/AccessTokenResponse';
+export type { AlbumItemModel } from './models/AlbumItemModel';
 export type { AlbumModel } from './models/AlbumModel';
+export type { AlbumPhotoData } from './models/AlbumPhotoData';
 export type { ForgotPasswordRequest } from './models/ForgotPasswordRequest';
 export type { HttpValidationProblemDetails } from './models/HttpValidationProblemDetails';
 export type { InfoRequest } from './models/InfoRequest';

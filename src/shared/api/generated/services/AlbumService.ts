@@ -2,20 +2,19 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { AlbumModel } from '../models/AlbumModel';
+import type { AlbumItemModel } from '../models/AlbumItemModel';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-
 export class AlbumService {
     /**
      * Retrieves a list of available albums.
      * This method returns all albums currently available in the system. If no albums are available,
      * the response will contain an empty list.
-     * @returns AlbumModel OK
+     * @returns AlbumItemModel OK
      * @throws ApiError
      */
-    public static getAlbums(): CancelablePromise<Array<AlbumModel>> {
+    public static getAlbums(): CancelablePromise<Array<AlbumItemModel>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/Album',
@@ -42,25 +41,6 @@ export class AlbumService {
             },
             body: requestBody,
             mediaType: 'application/json',
-        });
-    }
-    /**
-     * Retrieves an album by its unique identifier.
-     * The id must correspond to an existing album in the system. If the album does
-     * not exist, the response will indicate an error.
-     * @param id The unique identifier of the album to retrieve.
-     * @returns AlbumModel OK
-     * @throws ApiError
-     */
-    public static getAlbumById(
-        id: number,
-    ): CancelablePromise<AlbumModel> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/Album/{id}',
-            path: {
-                'id': id,
-            },
         });
     }
     /**

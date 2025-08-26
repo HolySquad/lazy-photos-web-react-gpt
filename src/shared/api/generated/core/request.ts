@@ -8,8 +8,6 @@ import type { ApiResult } from './ApiResult';
 import { CancelablePromise } from './CancelablePromise';
 import type { OnCancel } from './CancelablePromise';
 import type { OpenAPIConfig } from './OpenAPI';
-import { API_BASE_URL } from '../../../config';
-import { getCookie, setAuthSession, clearAuthSession } from '../../../auth/session';
 
 export const isDefined = <T>(value: T | null | undefined): value is Exclude<T, null | undefined> => {
     return value !== undefined && value !== null;
@@ -194,35 +192,6 @@ export const getRequestBody = (options: ApiRequestOptions): any => {
     return undefined;
 };
 
-async function refreshAccessToken(): Promise<string | null> {
-    const refreshToken = getCookie('refreshToken');
-    const username = getCookie('username');
-    if (!refreshToken || !username) {
-        return null;
-    }
-    try {
-        const res = await fetch(`${API_BASE_URL}/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken }),
-        });
-        if (!res.ok) {
-            clearAuthSession();
-            return null;
-        }
-        const data = await res.json() as { accessToken?: string | null; refreshToken?: string | null };
-        if (data.accessToken) {
-            setAuthSession(data.accessToken, data.refreshToken ?? refreshToken, username);
-            return data.accessToken;
-        }
-        clearAuthSession();
-        return null;
-    } catch {
-        clearAuthSession();
-        return null;
-    }
-}
-
 export const sendRequest = async (
     config: OpenAPIConfig,
     options: ApiRequestOptions,
@@ -246,16 +215,8 @@ export const sendRequest = async (
     }
 
     onCancel(() => controller.abort());
-    let response = await fetch(url, request);
-    if (response.status === 401) {
-        const newToken = await refreshAccessToken();
-        if (newToken) {
-            const retryHeaders = new Headers(request.headers as Headers);
-            retryHeaders.set('Authorization', `Bearer ${newToken}`);
-            response = await fetch(url, { ...request, headers: retryHeaders });
-        }
-    }
-    return response;
+
+    return await fetch(url, request);
 };
 
 export const getResponseHeader = (response: Response, responseHeader?: string): string | undefined => {

@@ -157,8 +157,8 @@ export default function Home() {
               {photos.map((photo, i) => (
                 <img
                   key={photo.id}
-                  src={photo.photoUrl}
-                  alt={photo.displayFileName}
+                  src={photo.photoUrl ?? ""}
+                  alt={photo.displayFileName ?? ""}
                   onClick={() => setSelectedIndex(i)}
                 />
               ))}
@@ -258,8 +258,8 @@ export default function Home() {
               ×
             </button>
             <img
-              src={selectedPhoto.photoUrl}
-              alt={selectedPhoto.displayFileName}
+              src={selectedPhoto.photoUrl ?? ""}
+              alt={selectedPhoto.displayFileName ?? ""}
               className={styles.previewImage}
             />
             <div className={styles.previewMenuWrapper}>
