@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "LazyPhotos.API",
+    "title": "Lazy.MyPhotos API",
     "version": "v1"
   },
   "paths": {
@@ -111,6 +111,15 @@
         "parameters": [
           {
             "name": "id",
+            "in": "query",
+            "description": "The unique identifier of the album to retrieve.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -154,6 +163,130 @@
             "name": "albumId",
             "in": "path",
             "description": "The unique identifier of the album to delete.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/AlbumPhotos/{albumId}/photos": {
+      "post": {
+        "tags": [
+          "AlbumPhotos"
+        ],
+        "summary": "Adds one or more photos to the specified album.",
+        "description": "This method invokes the album service to associate the specified photos with the given album.\r\n            Ensure that the album and photo identifiers are valid and that the user has the necessary permissions to modify\r\n            the album.",
+        "parameters": [
+          {
+            "name": "albumId",
+            "in": "path",
+            "description": "The unique identifier of the album to which the photos will be added.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "An array of unique identifiers representing the photos to add to the album.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/AlbumPhotos/{albumId}/photos/{photoId}": {
+      "post": {
+        "tags": [
+          "AlbumPhotos"
+        ],
+        "summary": "Adds one photo to the specified album.",
+        "description": "This method invokes the album service to associate the specified photo with the given album.\r\n            Ensure that the album and photo identifiers are valid and that the user has the necessary permissions to modify\r\n            the album.",
+        "parameters": [
+          {
+            "name": "albumId",
+            "in": "path",
+            "description": "The unique identifier of the album to which the photos will be added.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "photoId",
+            "in": "path",
+            "description": "The unique identifier representing the photo to add to the album.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AlbumPhotos"
+        ],
+        "parameters": [
+          {
+            "name": "albumId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "photoId",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -517,21 +650,58 @@
         "tags": [
           "Photo"
         ],
+        "summary": "Retrieves the latest photos with pagination support.",
+        "description": "This method supports pagination by using the offset and pageSize parameters. The photos are retrieved in descending order of their creation or upload\r\n            time.",
         "operationId": "LatestPhotos",
         "parameters": [
           {
             "name": "offset",
             "in": "query",
+            "description": "The zero-based index of the first photo to retrieve. Must be non-negative.",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 0
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of photos to retrieve. If less than or equal to 0, a default value of 20 is used.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhotoModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhotoModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhotoModel"
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -539,6 +709,8 @@
         "tags": [
           "Photo"
         ],
+        "summary": "Uploads a photo to the server and processes it asynchronously.",
+        "description": "The uploaded photo is processed using the provided Microsoft.AspNetCore.Http.IFormFile stream. \r\n            Ensure that the file is not null and contains valid data before calling this method.",
         "operationId": "UploadPhoto",
         "requestBody": {
           "content": {
@@ -548,6 +720,7 @@
                 "properties": {
                   "file": {
                     "type": "string",
+                    "description": "The photo file to be uploaded. Must be a valid Microsoft.AspNetCore.Http.IFormFile instance.",
                     "format": "binary"
                   }
                 }
@@ -572,11 +745,14 @@
         "tags": [
           "Photo"
         ],
+        "summary": "Retrieves a photo by its unique identifier.",
+        "description": "This method returns an HTTP 200 OK response with the photo data if the photo is\r\n            found, or an HTTP 404 Not Found response if the photo does not exist.",
         "operationId": "GetPhotoById",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The unique identifier of the photo to retrieve. Must be a positive long value.",
             "required": true,
             "schema": {
               "type": "integer",
@@ -586,7 +762,44 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -596,6 +809,8 @@
         "tags": [
           "User"
         ],
+        "summary": "Retrieves the currently authenticated user.",
+        "description": "This method returns the details of the user associated with the current\r\n            authentication context. If no user is authenticated, the method returns a 404 Not Found response.",
         "operationId": "CurrentUser",
         "responses": {
           "200": {
@@ -607,33 +822,6 @@
   },
   "components": {
     "schemas": {
-      "AlbumModel": {
-        "required": [
-          "id",
-          "title",
-          "photoCount"
-        ],
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "photoCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "thumbnailPath": {
-            "type": "string",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          }
-        },
-        "additionalProperties": false
-      },
       "AccessTokenResponse": {
         "required": [
           "accessToken",
@@ -658,6 +846,28 @@
           "refreshToken": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AlbumModel": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "photoCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "thumbnailPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "additionalProperties": false
@@ -710,7 +920,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "InfoRequest": {
         "type": "object",
@@ -772,6 +982,92 @@
           }
         },
         "additionalProperties": false
+      },
+      "PhotoMetadata": {
+        "type": "object",
+        "properties": {
+          "cameraModel": {
+            "type": "string",
+            "nullable": true
+          },
+          "aperture": {
+            "type": "string",
+            "nullable": true
+          },
+          "shutterTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "focusRange": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isoCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhotoModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayFileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "photoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "blobId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "photoMetadata": {
+            "$ref": "#/components/schemas/PhotoMetadata"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
       },
       "RefreshRequest": {
         "required": [
@@ -900,7 +1196,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "http",
-        "description": "Please enter token",
+        "description": "Enter bearer",
         "scheme": "bearer",
         "bearerFormat": "JWT"
       }
@@ -908,7 +1204,7 @@
   },
   "security": [
     {
-      "Bearer": []
+      "Bearer": [ ]
     }
   ]
 }

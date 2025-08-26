@@ -6,6 +6,7 @@ import type { AlbumModel } from '../models/AlbumModel';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
+
 export class AlbumService {
     /**
      * Retrieves a list of available albums.
@@ -47,12 +48,12 @@ export class AlbumService {
      * Retrieves an album by its unique identifier.
      * The id must correspond to an existing album in the system. If the album does
      * not exist, the response will indicate an error.
-     * @param id
+     * @param id The unique identifier of the album to retrieve.
      * @returns AlbumModel OK
      * @throws ApiError
      */
     public static getAlbumById(
-        id: string,
+        id: number,
     ): CancelablePromise<AlbumModel> {
         return __request(OpenAPI, {
             method: 'GET',
