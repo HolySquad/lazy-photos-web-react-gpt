@@ -193,3 +193,63 @@ describe("getPhotos", () => {
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("uploadPhoto", () => {
+  it("uploads file with auth header", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
+    const mockPhoto = {
+      id: 1,
+      displayFileName: "p.jpg",
+      photoUrl: "https://example.com/p.jpg",
+      blobId: "b",
+      userId: "u",
+      createdAt: "now",
+      photoMetadata: {
+        cameraModel: "m",
+        aperture: "a",
+        shutterTime: "s",
+        focusRange: 1,
+        isoCount: 1,
+      },
+    };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => mockPhoto,
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
+    const { uploadPhoto } = await import("../../src/shared/api/photos");
+    await expect(uploadPhoto(file)).resolves.toEqual(mockPhoto);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe("https://api.example.com/Photo");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBeInstanceOf(FormData);
+    const body = init?.body as FormData;
+    expect(body.get("file")).toBe(file);
+    expect((init?.headers as Headers).get("Authorization")).toBe(
+      "Bearer token",
+    );
+  });
+
+  it("throws server message", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    (globalThis as any).document = { cookie: "accessToken=token" };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: "Bad",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => ({ message: "boom" }),
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
+    const { uploadPhoto } = await import("../../src/shared/api/photos");
+    await expect(uploadPhoto(file)).rejects.toThrow("boom");
+  });
+});

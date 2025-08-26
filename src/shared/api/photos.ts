@@ -68,3 +68,53 @@ export async function getPhotos(): Promise<Photo[]> {
     throw new Error(message);
   }
 }
+
+export async function uploadPhoto(file: File): Promise<Photo> {
+  try {
+    const res = await PhotoService.uploadPhoto({ file });
+    return PhotoSchema.parse(res);
+  } catch (err) {
+    const status = (err as any)?.status as number | undefined;
+    const body = (err as any)?.body as { message?: string } | undefined;
+    if (status === 401 && body?.message === "expired") {
+      const refreshToken = getCookie("refreshToken");
+      const username = getCookie("username") || "";
+      if (refreshToken) {
+        try {
+          const tokens = await refreshAccessToken(refreshToken);
+          if (!tokens.accessToken) {
+            throw new Error("Missing access token");
+          }
+          setAuthSession(
+            tokens.accessToken,
+            tokens.refreshToken ?? refreshToken,
+            username,
+          );
+          const retry = await PhotoService.uploadPhoto({ file });
+          return PhotoSchema.parse(retry);
+        } catch (refreshErr) {
+          const rBody = (refreshErr as any)?.body as { message?: string } | undefined;
+          const rMessage =
+            rBody?.message ??
+            (refreshErr instanceof Error
+              ? refreshErr.message
+              : "Failed to upload photo");
+          throw new Error(rMessage);
+        }
+      }
+    }
+    const message =
+      body?.message ??
+      (err instanceof Error ? err.message : "Failed to upload photo");
+    throw new Error(message);
+  }
+}
+
+export async function uploadPhotos(files: File[]): Promise<Photo[]> {
+  const uploaded: Photo[] = [];
+  for (const file of files) {
+    const photo = await uploadPhoto(file);
+    uploaded.push(photo);
+  }
+  return uploaded;
+}

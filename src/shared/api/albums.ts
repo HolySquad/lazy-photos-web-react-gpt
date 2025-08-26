@@ -91,5 +91,20 @@ export async function addPhotoToAlbum(
   }
 }
 
+export async function addPhotosToAlbum(
+  albumId: number,
+  photoIds: number[],
+): Promise<void> {
+  try {
+    await AlbumPhotosService.postAlbumPhotosPhotos(albumId, photoIds);
+  } catch (err) {
+    const body = (err as any)?.body as { message?: string } | undefined;
+    const message =
+      body?.message ??
+      (err instanceof Error ? err.message : "Failed to add photos to album");
+    throw new Error(message);
+  }
+}
+
 
 
