@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAlbum } from "@/shared/api/albums";
 import styles from "./album.module.css";
@@ -12,6 +12,7 @@ type Props = { params: { id: string } };
 export default function AlbumView({ params }: Props) {
   const id = Number(params.id);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
   
   const {
     data: album,
@@ -19,9 +20,28 @@ export default function AlbumView({ params }: Props) {
     isError: albumError,
   } = useQuery({ queryKey: ["album", id], queryFn: () => getAlbum(id) });
 
-  const photos = album?.albumPhotos ?? [];
+  const photos = useMemo(() => album?.albumPhotos ?? [], [album]);
   const selectedPhoto =
     selectedIndex !== null ? photos[selectedIndex] : null;
+
+  const resizeAllGridItems = useCallback(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const rowHeight = parseInt(
+      window.getComputedStyle(grid).getPropertyValue("grid-auto-rows"),
+    );
+    const gap = parseInt(window.getComputedStyle(grid).getPropertyValue("gap"));
+    grid
+      .querySelectorAll<HTMLElement>(`.${styles.photoItem}`)
+      .forEach((item) => {
+        const img = item.querySelector("img");
+        if (!img) return;
+        const rowSpan = Math.ceil(
+          (img.getBoundingClientRect().height + gap) / (rowHeight + gap),
+        );
+        item.style.gridRowEnd = `span ${rowSpan}`;
+      });
+  }, []);
 
   const showPrevPhoto = useCallback(
     () =>
@@ -58,6 +78,12 @@ export default function AlbumView({ params }: Props) {
     touchStartX.current = null;
   };
 
+  useEffect(() => {
+    resizeAllGridItems();
+    window.addEventListener("resize", resizeAllGridItems);
+    return () => window.removeEventListener("resize", resizeAllGridItems);
+  }, [photos, resizeAllGridItems]);
+
   if (albumLoading) {
     return <p className={styles.status}>Loading album...</p>;
   }
@@ -68,16 +94,21 @@ export default function AlbumView({ params }: Props) {
   return (
     <main className={styles.main}>
       <h1 className={styles.title}>{album.title}</h1>
-      <div className={styles.photoGrid}>
+      <div className={styles.photoGrid} ref={gridRef}>
         {photos.map(
           (photo, i) =>
             photo.blobUrl && (
-              <img
+              <div
                 key={photo.photoId}
-                src={photo.blobUrl}
-                alt="album photo"
+                className={styles.photoItem}
                 onClick={() => setSelectedIndex(i)}
-              />
+              >
+                <img
+                  src={photo.blobUrl}
+                  alt="album photo"
+                  onLoad={resizeAllGridItems}
+                />
+              </div>
             ),
         )}
       </div>
