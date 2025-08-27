@@ -330,7 +330,7 @@ export default function Home() {
             </div>
             <div
               className={styles.previewTrack}
-              style={{ transform: `translateX(-${selectedIndex! * 100}%)` }}
+              style={{ transform: `translateX(-${selectedIndex! * 100}vw)` }}
             >
               {photos.map((photo) => (
                 <img
