@@ -12,16 +12,29 @@
   margin-bottom: 1rem;
 }
 
+/* Masonry-style photo grid for album view */
 .photoGrid {
+  column-count: 2;
+  column-gap: 0.5rem;
   width: 100%;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .photoGrid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .photoGrid {
+    column-count: 4;
+  }
 }
 
 .photoGrid img {
   width: 100%;
-  height: auto;
+  margin-bottom: 0.5rem;
+  break-inside: avoid;
   display: block;
 }
 
