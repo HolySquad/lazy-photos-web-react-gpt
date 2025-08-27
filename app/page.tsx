@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
@@ -24,6 +24,8 @@ export default function Home() {
   const [showAlbumPicker, setShowAlbumPicker] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const queryClient = useQueryClient();
+
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     const update = () => setUsername(getCookie("username"));
@@ -73,6 +75,23 @@ export default function Home() {
       ),
     [photos.length],
   );
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 50) {
+      if (delta < 0) {
+        showNextPhoto();
+      } else {
+        showPrevPhoto();
+      }
+    }
+    touchStartX.current = null;
+  };
 
   const submitCreateAlbum = async () => {
     if (!albumTitle.trim()) return;
@@ -273,43 +292,47 @@ export default function Home() {
           <div
             className={styles.photoPreview}
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            <button
-              className={styles.closePreview}
-              onClick={() => {
-                setSelectedIndex(null);
-                setMenuOpen(false);
-                setShowAlbumPicker(false);
-              }}
-            >
-              ×
-            </button>
+            <div className={styles.topBar}>
+              <button
+                onClick={() => {
+                  setSelectedIndex(null);
+                  setMenuOpen(false);
+                  setShowAlbumPicker(false);
+                }}
+                aria-label="Close preview"
+              >
+                ←
+              </button>
+              <div className={styles.previewMenuWrapper}>
+                <button
+                  className={styles.menuButton}
+                  onClick={() => setMenuOpen((v) => !v)}
+                  aria-label="More actions"
+                >
+                  ⋮
+                </button>
+                {menuOpen && (
+                  <div className={styles.menuDropdown}>
+                    <button
+                      onClick={() => {
+                        setShowAlbumPicker(true);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Add to album
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             <img
               src={selectedPhoto.photoUrl ?? ""}
               alt={selectedPhoto.displayFileName ?? ""}
               className={styles.previewImage}
             />
-            <div className={styles.previewMenuWrapper}>
-              <button
-                className={styles.menuButton}
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-label="More actions"
-              >
-                ⋮
-              </button>
-              {menuOpen && (
-                <div className={styles.menuDropdown}>
-                  <button
-                    onClick={() => {
-                      setShowAlbumPicker(true);
-                      setMenuOpen(false);
-                    }}
-                  >
-                    Add to album
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
           <button
             className={`${styles.navButton} ${styles.nextButton}`}

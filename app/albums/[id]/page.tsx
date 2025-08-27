@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAlbum, addPhotosToAlbum } from "@/shared/api/albums";
 import { uploadPhotos } from "@/shared/api/photos";
@@ -40,6 +40,25 @@ export default function AlbumView({ params }: Props) {
       ),
     [photos.length],
   );
+
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 50) {
+      if (delta < 0) {
+        showNextPhoto();
+      } else {
+        showPrevPhoto();
+      }
+    }
+    touchStartX.current = null;
+  };
 
   const handlePhotoUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -112,13 +131,17 @@ export default function AlbumView({ params }: Props) {
           <div
             className={styles.photoPreview}
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            <button
-              className={styles.closePreview}
-              onClick={() => setSelectedIndex(null)}
-            >
-              ×
-            </button>
+            <div className={styles.topBar}>
+              <button
+                onClick={() => setSelectedIndex(null)}
+                aria-label="Close preview"
+              >
+                ←
+              </button>
+            </div>
             <img
               src={selectedPhoto.blobUrl}
               alt="album photo"

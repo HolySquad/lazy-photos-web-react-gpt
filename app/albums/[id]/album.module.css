@@ -61,7 +61,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,19 +72,33 @@
   position: relative;
   width: 100vw;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .previewImage {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
   display: block;
 }
 
-.closePreview {
+.topBar {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.topBar button {
   background: none;
   border: none;
   color: #fff;
@@ -109,4 +123,10 @@
 
 .nextButton {
   right: 1rem;
+}
+
+@media (max-width: 600px) {
+  .navButton {
+    display: none;
+  }
 }
