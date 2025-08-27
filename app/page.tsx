@@ -161,11 +161,19 @@ export default function Home() {
         showNextPhoto();
       } else if (e.key === "ArrowLeft") {
         showPrevPhoto();
+      } else if (e.key === "Escape") {
+        setSelectedIndex(null);
+        setMenuOpen(false);
+        setShowAlbumPicker(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedIndex, showNextPhoto, showPrevPhoto]);
+  }, [
+    selectedIndex,
+    showNextPhoto,
+    showPrevPhoto,
+  ]);
 
   if (!username) {
     const images = Array.from({ length: 6 }).map((_, i) => (
@@ -327,11 +335,13 @@ export default function Home() {
           </button>
           <div
             className={styles.photoPreview}
-            onClick={(e) => e.stopPropagation()}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <div className={styles.topBar}>
+            <div
+              className={styles.topBar}
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 onClick={() => {
                   setSelectedIndex(null);
@@ -374,6 +384,7 @@ export default function Home() {
                   src={photo.photoUrl ?? ""}
                   alt={photo.displayFileName ?? ""}
                   className={styles.previewImage}
+                  onClick={(e) => e.stopPropagation()}
                 />
               ))}
             </div>
