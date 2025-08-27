@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
-import { getPhotos, uploadPhotos } from "@/shared/api/photos";
+import { getPhotos } from "@/shared/api/photos";
 import {
   getAlbums,
   createAlbum,
@@ -22,7 +22,6 @@ export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAlbumPicker, setShowAlbumPicker] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const touchStartX = useRef<number | null>(null);
@@ -104,23 +103,6 @@ export default function Home() {
     }
   };
 
-  const handlePhotoUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const files = e.target.files;
-    if (!files?.length) return;
-    try {
-      setUploadProgress(0);
-      await uploadPhotos(Array.from(files), setUploadProgress);
-      queryClient.invalidateQueries({ queryKey: ["photos"] });
-      e.target.value = "";
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to upload photo");
-    } finally {
-      setUploadProgress(null);
-    }
-  };
-
   useEffect(() => {
     if (selectedIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -191,13 +173,6 @@ export default function Home() {
             <p>Failed to load photos</p>
           ) : (
             <>
-              <input type="file" multiple onChange={handlePhotoUpload} />
-              {uploadProgress !== null && (
-                <div className={styles.uploadProgress}>
-                  <progress value={uploadProgress} max={100} />
-                  <span>{uploadProgress}%</span>
-                </div>
-              )}
               <div className={styles.photoGrid}>
                 {photos.map((photo, i) => (
                   <img

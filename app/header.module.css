@@ -4,6 +4,9 @@
   right: 0;
   padding: 1rem;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .userMenu {
@@ -24,4 +27,19 @@
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.uploadButton {
+  background: transparent;
+  border: 1px solid #0f0;
+  color: #0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.uploadProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
