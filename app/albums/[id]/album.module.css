@@ -12,29 +12,17 @@
   margin-bottom: 1rem;
 }
 
-/* Masonry-style photo grid for album view */
+/* Responsive photo grid for album view ordered left-to-right */
 .photoGrid {
-  column-count: 2;
-  column-gap: 0.5rem;
   width: 100%;
-}
-
-@media (min-width: 768px) {
-  .photoGrid {
-    column-count: 3;
-  }
-}
-
-@media (min-width: 1280px) {
-  .photoGrid {
-    column-count: 4;
-  }
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 
 .photoGrid img {
   width: 100%;
-  margin-bottom: 0.5rem;
-  break-inside: avoid;
+  height: auto;
   display: block;
 }
 
