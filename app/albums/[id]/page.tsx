@@ -13,7 +13,7 @@ export default function AlbumView({ params }: Props) {
   const id = Number(params.id);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  
+
   const {
     data: album,
     isLoading: albumLoading,
@@ -21,8 +21,7 @@ export default function AlbumView({ params }: Props) {
   } = useQuery({ queryKey: ["album", id], queryFn: () => getAlbum(id) });
 
   const photos = useMemo(() => album?.albumPhotos ?? [], [album]);
-  const selectedPhoto =
-    selectedIndex !== null ? photos[selectedIndex] : null;
+  const selectedPhoto = selectedIndex !== null ? photos[selectedIndex] : null;
 
   const resizeAllGridItems = useCallback(() => {
     const grid = gridRef.current;
@@ -97,14 +96,14 @@ export default function AlbumView({ params }: Props) {
       <div className={styles.photoGrid} ref={gridRef}>
         {photos.map(
           (photo, i) =>
-            photo.blobUrl && (
+            (photo.thumbnailUrl || photo.blobUrl) && (
               <div
                 key={photo.photoId}
                 className={styles.photoItem}
                 onClick={() => setSelectedIndex(i)}
               >
                 <img
-                  src={photo.blobUrl}
+                  src={photo.thumbnailUrl ?? photo.blobUrl ?? ""}
                   alt="album photo"
                   onLoad={resizeAllGridItems}
                 />
@@ -145,23 +144,24 @@ export default function AlbumView({ params }: Props) {
               className={styles.previewTrack}
               style={{ transform: `translateX(-${selectedIndex! * 100}vw)` }}
             >
-              {photos.map((photo) => (
-                photo.blobUrl && (
-                  <img
-                    key={photo.photoId}
-                    src={photo.blobUrl}
-                    alt="album photo"
-                    className={styles.previewImage}
-                  />
-                )
-              ))}
+              {photos.map(
+                (photo) =>
+                  photo.blobUrl && (
+                    <img
+                      key={photo.photoId}
+                      src={photo.blobUrl}
+                      alt="album photo"
+                      className={styles.previewImage}
+                    />
+                  ),
+              )}
             </div>
           </div>
-        <button
-          className={`${styles.navButton} ${styles.nextButton}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            showNextPhoto();
+          <button
+            className={`${styles.navButton} ${styles.nextButton}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              showNextPhoto();
             }}
             aria-label="Next photo"
           >

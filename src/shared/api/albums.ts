@@ -8,7 +8,8 @@ OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
 const AlbumPhotoSchema = z.object({
   photoId: z.number(),
-  blobUrl: z.string().nullable(),
+  blobUrl: z.string().url().nullable(),
+  thumbnailUrl: z.string().url().nullable(),
 });
 
 const AlbumSchema = z.object({
@@ -105,6 +106,3 @@ export async function addPhotosToAlbum(
     throw new Error(message);
   }
 }
-
-
-

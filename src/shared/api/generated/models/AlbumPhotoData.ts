@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type AlbumPhotoData = {
-    photoId?: number;
-    blobUrl?: string | null;
+  photoId?: number;
+  blobUrl?: string | null;
+  thumbnailUrl?: string | null;
 };
-

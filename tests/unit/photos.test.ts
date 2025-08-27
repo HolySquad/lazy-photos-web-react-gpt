@@ -40,6 +40,8 @@ describe("getPhotos", () => {
       displayFileName: "no-signal.png",
       photoUrl:
         "https://lazystoragephotos001.blob.core.windows.net/photos/46ebce29-7465-4967-b2c6-07963943ca3e/0ae3bc43-bbf7-402c-a0bd-a08037fe821e.png",
+      thumbnailUrl:
+        "https://lazystoragephotos001.blob.core.windows.net/photos/46ebce29-7465-4967-b2c6-07963943ca3e/0ae3bc43-bbf7-402c-a0bd-a08037fe821e_thumb.png",
       blobId: "0ae3bc43-bbf7-402c-a0bd-a08037fe821e",
       userId: "46ebce29-7465-4967-b2c6-07963943ca3e",
       createdAt: "2024-09-18T14:02:53.1166667+00:00",
@@ -63,9 +65,7 @@ describe("getPhotos", () => {
     const { getPhotos } = await import("../../src/shared/api/photos");
     await expect(getPhotos()).resolves.toEqual([mockPhoto]);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(
-      "https://api.example.com/Photo?offset=0&pageSize=20",
-    );
+    expect(url).toBe("https://api.example.com/Photo?offset=0&pageSize=20");
     expect(init?.method).toBe("GET");
     expect((init?.headers as Headers).get("Authorization")).toBe(
       "Bearer token",
@@ -87,9 +87,7 @@ describe("getPhotos", () => {
     const { getPhotos } = await import("../../src/shared/api/photos");
     await expect(getPhotos(40, 10)).resolves.toEqual([]);
     const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe(
-      "https://api.example.com/Photo?offset=40&pageSize=10",
-    );
+    expect(url).toBe("https://api.example.com/Photo?offset=40&pageSize=10");
   });
 
   it("throws with server message", async () => {
@@ -107,7 +105,6 @@ describe("getPhotos", () => {
     const { getPhotos } = await import("../../src/shared/api/photos");
     await expect(getPhotos()).rejects.toThrow("boom");
   });
-
 });
 
 describe("uploadPhoto", () => {
@@ -141,17 +138,14 @@ describe("uploadPhoto", () => {
   it("throws server message", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     setupDom({ accessToken: "token" });
-    const post = vi
-      .fn()
-      .mockRejectedValue({
-        response: { status: 400, data: { message: "boom" } },
-      });
+    const post = vi.fn().mockRejectedValue({
+      response: { status: 400, data: { message: "boom" } },
+    });
     (axios.post as any) = post;
     const file = new File(["data"], "p.jpg", { type: "image/jpeg" });
     const { uploadPhoto } = await import("../../src/shared/api/photos");
     await expect(uploadPhoto(file)).rejects.toThrow("boom");
   });
-
 });
 
 describe("uploadPhotos", () => {
@@ -159,13 +153,13 @@ describe("uploadPhotos", () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
     setupDom({ accessToken: "t" });
     let id = 1;
-    const post = vi.fn().mockImplementation(
-      (_url: string, _data: FormData, config: any) => {
+    const post = vi
+      .fn()
+      .mockImplementation((_url: string, _data: FormData, config: any) => {
         config.onUploadProgress({ loaded: 50, total: 100 });
         config.onUploadProgress({ loaded: 100, total: 100 });
         return Promise.resolve({ data: { id: id++ } });
-      },
-    );
+      });
     (axios.post as any) = post;
     const { uploadPhotos } = await import("../../src/shared/api/photos");
     const file1 = new File(["a"], "a.jpg", { type: "image/jpeg" });

@@ -44,7 +44,11 @@ describe("albums api", () => {
       photoCount: 0,
       thumbnailPath: null,
       albumPhotos: [
-        { photoId: 1, blobUrl: "https://cdn.example.com/p.jpg" },
+        {
+          photoId: 1,
+          blobUrl: "https://cdn.example.com/p.jpg",
+          thumbnailUrl: "https://cdn.example.com/p_thumb.jpg",
+        },
       ],
     };
     const mockFetch = vi.fn().mockResolvedValue({
@@ -175,4 +179,3 @@ describe("albums api", () => {
     expect(init?.body).toBe(JSON.stringify([]));
   });
 });
-
