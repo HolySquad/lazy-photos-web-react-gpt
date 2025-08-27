@@ -95,7 +95,27 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
           }
         }
       }
@@ -120,8 +140,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -178,8 +198,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -214,8 +234,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           }
         }
       },
@@ -244,8 +264,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -728,7 +748,24 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoUploadResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoUploadResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoUploadResult"
+                }
+              }
+            }
           }
         }
       }
@@ -854,13 +891,13 @@
             "type": "integer",
             "format": "int32"
           },
-          "thumbnailPath": {
-            "type": "string",
-            "nullable": true
-          },
           "id": {
             "type": "integer",
             "format": "int64"
+          },
+          "thumbnailPath": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -902,6 +939,10 @@
             "format": "int64"
           },
           "blobUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbnailUrl": {
             "type": "string",
             "nullable": true
           }
@@ -1060,6 +1101,10 @@
             "type": "string",
             "nullable": true
           },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "blobId": {
             "type": "string",
             "format": "uuid"
@@ -1074,6 +1119,28 @@
           },
           "photoMetadata": {
             "$ref": "#/components/schemas/PhotoMetadata"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhotoUploadResult": {
+        "type": "object",
+        "properties": {
+          "blobUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbnailBlobUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "blobId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "photoId": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "additionalProperties": false

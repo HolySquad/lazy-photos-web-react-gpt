@@ -20,6 +20,7 @@ export const PhotoSchema = z.object({
   id: z.number(),
   displayFileName: z.string().nullable(),
   photoUrl: z.string().url().nullable(),
+  thumbnailUrl: z.string().url().nullable(),
   blobId: z.string(),
   userId: z.string().nullable(),
   createdAt: z.string(),
@@ -37,10 +38,7 @@ const UploadPhotoResultSchema = z.union([
   z.coerce.number().transform((id) => ({ id })),
 ]);
 
-export async function getPhotos(
-  offset = 0,
-  pageSize = 20,
-): Promise<Photo[]> {
+export async function getPhotos(offset = 0, pageSize = 20): Promise<Photo[]> {
   try {
     const res = await PhotoService.latestPhotos(offset, pageSize);
     return PhotosSchema.parse(res);
@@ -64,9 +62,11 @@ export async function getPhotos(
           const retry = await PhotoService.latestPhotos(offset, pageSize);
           return PhotosSchema.parse(retry);
         } catch (refreshErr) {
-          const rBody = (refreshErr as any)?.body as {
-            message?: string;
-          } | undefined;
+          const rBody = (refreshErr as any)?.body as
+            | {
+                message?: string;
+              }
+            | undefined;
           const rMessage =
             rBody?.message ??
             (refreshErr instanceof Error
@@ -122,7 +122,9 @@ export async function uploadPhoto(
           );
           return await uploadPhoto(file, onProgress);
         } catch (refreshErr: any) {
-          const rBody = refreshErr?.response?.data as { message?: string } | undefined;
+          const rBody = refreshErr?.response?.data as
+            | { message?: string }
+            | undefined;
           const rMessage =
             rBody?.message ??
             (refreshErr instanceof Error

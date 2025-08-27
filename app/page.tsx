@@ -3,7 +3,11 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
@@ -89,8 +93,7 @@ export default function Home() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const selectedPhoto =
-    selectedIndex !== null ? photos[selectedIndex] : null;
+  const selectedPhoto = selectedIndex !== null ? photos[selectedIndex] : null;
 
   const {
     data: albums = [],
@@ -229,7 +232,7 @@ export default function Home() {
                     onClick={() => setSelectedIndex(i)}
                   >
                     <img
-                      src={photo.photoUrl ?? ""}
+                      src={photo.thumbnailUrl ?? photo.photoUrl ?? ""}
                       alt={photo.displayFileName ?? ""}
                       onLoad={resizeAllGridItems}
                     />
@@ -293,7 +296,8 @@ export default function Home() {
                   <div className={styles.albumInfo}>
                     <span className={styles.albumName}>{album.title}</span>
                     <span className={styles.albumCount}>
-                      {album.photoCount} {album.photoCount === 1 ? "photo" : "photos"}
+                      {album.photoCount}{" "}
+                      {album.photoCount === 1 ? "photo" : "photos"}
                     </span>
                   </div>
                 </Link>
