@@ -59,8 +59,10 @@
 /* Authorized home */
 .appContainer {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  box-sizing: border-box;
   padding-top: 4rem;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -102,6 +104,7 @@
 .content {
   flex: 1;
   padding: 2rem;
+  overflow-y: auto;
 }
 
 

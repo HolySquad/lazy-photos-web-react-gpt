@@ -263,7 +263,7 @@ export default function Home() {
                   <div className={styles.albumInfo}>
                     <span className={styles.albumName}>{album.title}</span>
                     <span className={styles.albumCount}>
-                      {album.photoCount} photos
+                      {album.photoCount} {album.photoCount === 1 ? "photo" : "photos"}
                     </span>
                   </div>
                 </Link>
