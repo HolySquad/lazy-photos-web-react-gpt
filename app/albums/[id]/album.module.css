@@ -12,16 +12,29 @@
   margin-bottom: 1rem;
 }
 
+/* Masonry-style photo grid for album view */
 .photoGrid {
+  column-count: 2;
+  column-gap: 0.5rem;
   width: 100%;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .photoGrid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .photoGrid {
+    column-count: 4;
+  }
 }
 
 .photoGrid img {
   width: 100%;
-  height: auto;
+  margin-bottom: 0.5rem;
+  break-inside: avoid;
   display: block;
 }
 
@@ -39,4 +52,85 @@
   border: 1px solid #00ff00;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
+}
+
+/* Photo preview overlay */
+.photoPreviewOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.photoPreview {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.previewTrack {
+  display: flex;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.previewImage {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.topBar button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.prevButton {
+  left: 1rem;
+}
+
+.nextButton {
+  right: 1rem;
+}
+
+@media (max-width: 600px) {
+  .navButton {
+    display: none;
+  }
 }

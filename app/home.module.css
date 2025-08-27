@@ -104,31 +104,52 @@
   padding: 2rem;
 }
 
-.photoGrid,
-.albumGrid {
+
+/* Masonry-style photo grid */
+.photoGrid {
+  column-count: 2;
+  column-gap: 0.5rem;
   width: 100%;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .photoGrid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .photoGrid {
+    column-count: 4;
+  }
 }
 
 .photoGrid img {
   width: 100%;
-  height: auto;
+  margin-bottom: 0.5rem;
+  break-inside: avoid;
   display: block;
 }
 
+/* Album grid retains traditional grid layout */
+.albumGrid {
+  width: 100%;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
 .albumItem {
-  border: 1px solid #00ff00;
-  border-radius: 4px;
+  position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  border-radius: 8px;
+  aspect-ratio: 4 / 3;
+  display: block;
 }
 
 .albumItem img {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -142,7 +163,7 @@
 
 .albumPlaceholder {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,10 +172,13 @@
 }
 
 .albumInfo {
+  position: absolute;
+  inset: auto 0 0 0;
   padding: 0.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  color: #fff;
 }
 
 .albumName {
@@ -166,6 +190,7 @@
 
 .albumCount {
   font-size: 0.875rem;
+  opacity: 0.8;
 }
 
 .createAlbum {
@@ -237,29 +262,48 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 200;
 }
 
 .photoPreview {
   position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.previewTrack {
+  display: flex;
+  height: 100%;
+  transition: transform 0.3s ease;
 }
 
 .previewImage {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  flex-shrink: 0;
   display: block;
 }
 
-.closePreview {
+.topBar {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.topBar button {
   background: none;
   border: none;
   color: #fff;
@@ -268,9 +312,7 @@
 }
 
 .previewMenuWrapper {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  position: relative;
 }
 
 .menuButton {
@@ -284,7 +326,7 @@
 .menuDropdown {
   position: absolute;
   right: 0;
-  margin-top: 0.5rem;
+  top: 100%;
   background: #000;
   border: 1px solid #00ff00;
   border-radius: 4px;
@@ -380,5 +422,9 @@
 
   .nav {
     flex-direction: row;
+  }
+
+  .navButton {
+    display: none;
   }
 }
