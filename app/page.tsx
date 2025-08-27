@@ -253,11 +253,13 @@ export default function Home() {
                   href={`/albums/${album.id}`}
                   className={styles.albumItem}
                 >
-                  {album.thumbnailPath ? (
-                    <img src={album.thumbnailPath} alt={album.title} />
-                  ) : (
-                    <div className={styles.albumPlaceholder}>No image</div>
-                  )}
+                  <div className={styles.albumThumb}>
+                    {album.thumbnailPath ? (
+                      <img src={album.thumbnailPath} alt={album.title} />
+                    ) : (
+                      <div className={styles.albumPlaceholder}>No image</div>
+                    )}
+                  </div>
                   <div className={styles.albumInfo}>
                     <span className={styles.albumName}>{album.title}</span>
                     <span className={styles.albumCount}>
