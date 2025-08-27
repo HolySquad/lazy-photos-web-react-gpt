@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useCallback, useEffect, useState, useRef } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
@@ -25,21 +25,43 @@ export default function Home() {
   const queryClient = useQueryClient();
 
   const touchStartX = useRef<number | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const update = () => setUsername(getCookie("username"));
     update();
     return onAuthSessionChange(update);
   }, []);
+  const PAGE_SIZE = 20;
   const {
-    data: photos = [],
+    data: photoPages,
     isLoading: photosLoading,
     isError: photosError,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["photos"],
-    queryFn: getPhotos,
+    queryFn: ({ pageParam = 0 }) => getPhotos(pageParam, PAGE_SIZE),
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.length === PAGE_SIZE ? pages.length * PAGE_SIZE : undefined,
+    initialPageParam: 0,
     enabled: !!username && active === "photos",
   });
+  const photos = photoPages?.pages.flat() ?? [];
+
+  useEffect(() => {
+    if (!hasNextPage) return;
+    const node = loadMoreRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const selectedPhoto =
     selectedIndex !== null ? photos[selectedIndex] : null;
@@ -183,6 +205,8 @@ export default function Home() {
                   />
                 ))}
               </div>
+              <div ref={loadMoreRef} style={{ height: 1 }} />
+              {isFetchingNextPage && <p>Loading...</p>}
             </>
           )
         ) : albumsLoading ? (
