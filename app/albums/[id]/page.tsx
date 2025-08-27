@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAlbum, addPhotosToAlbum } from "@/shared/api/albums";
 import { uploadPhotos } from "@/shared/api/photos";
@@ -14,11 +14,32 @@ export default function AlbumView({ params }: Props) {
   const id = Number(params.id);
   const queryClient = useQueryClient();
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const {
     data: album,
     isLoading: albumLoading,
     isError: albumError,
   } = useQuery({ queryKey: ["album", id], queryFn: () => getAlbum(id) });
+
+  const photos = album?.albumPhotos ?? [];
+  const selectedPhoto =
+    selectedIndex !== null ? photos[selectedIndex] : null;
+
+  const showPrevPhoto = useCallback(
+    () =>
+      setSelectedIndex((idx) =>
+        idx === null ? idx : idx === 0 ? photos.length - 1 : idx - 1,
+      ),
+    [photos.length],
+  );
+
+  const showNextPhoto = useCallback(
+    () =>
+      setSelectedIndex((idx) =>
+        idx === null ? idx : idx === photos.length - 1 ? 0 : idx + 1,
+      ),
+    [photos.length],
+  );
 
   const handlePhotoUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -61,12 +82,61 @@ export default function AlbumView({ params }: Props) {
         </div>
       )}
       <div className={styles.photoGrid}>
-        {(album.albumPhotos ?? []).map((photo) => (
-          photo.blobUrl && (
-            <img key={photo.photoId} src={photo.blobUrl} alt="album photo" />
-          )
-        ))}
+        {photos.map(
+          (photo, i) =>
+            photo.blobUrl && (
+              <img
+                key={photo.photoId}
+                src={photo.blobUrl}
+                alt="album photo"
+                onClick={() => setSelectedIndex(i)}
+              />
+            ),
+        )}
       </div>
+      {selectedPhoto && selectedPhoto.blobUrl && (
+        <div
+          className={styles.photoPreviewOverlay}
+          onClick={() => setSelectedIndex(null)}
+        >
+          <button
+            className={`${styles.navButton} ${styles.prevButton}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              showPrevPhoto();
+            }}
+            aria-label="Previous photo"
+          >
+            ‹
+          </button>
+          <div
+            className={styles.photoPreview}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closePreview}
+              onClick={() => setSelectedIndex(null)}
+            >
+              ×
+            </button>
+            <img
+              src={selectedPhoto.blobUrl}
+              alt="album photo"
+              className={styles.previewImage}
+            />
+          </div>
+          <button
+            className={`${styles.navButton} ${styles.nextButton}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              showNextPhoto();
+            }}
+            aria-label="Next photo"
+          >
+            ›
+          </button>
+        </div>
+      )}
       <Link href="/" className={styles.back}>
         Back
       </Link>
