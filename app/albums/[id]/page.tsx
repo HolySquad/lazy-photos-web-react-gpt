@@ -142,17 +142,27 @@ export default function AlbumView({ params }: Props) {
                 ←
               </button>
             </div>
-            <img
-              src={selectedPhoto.blobUrl}
-              alt="album photo"
-              className={styles.previewImage}
-            />
+            <div
+              className={styles.previewTrack}
+              style={{ transform: `translateX(-${selectedIndex! * 100}%)` }}
+            >
+              {photos.map((photo) => (
+                photo.blobUrl && (
+                  <img
+                    key={photo.photoId}
+                    src={photo.blobUrl}
+                    alt="album photo"
+                    className={styles.previewImage}
+                  />
+                )
+              ))}
+            </div>
           </div>
-          <button
-            className={`${styles.navButton} ${styles.nextButton}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              showNextPhoto();
+        <button
+          className={`${styles.navButton} ${styles.nextButton}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            showNextPhoto();
             }}
             aria-label="Next photo"
           >

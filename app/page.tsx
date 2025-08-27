@@ -328,11 +328,19 @@ export default function Home() {
                 )}
               </div>
             </div>
-            <img
-              src={selectedPhoto.photoUrl ?? ""}
-              alt={selectedPhoto.displayFileName ?? ""}
-              className={styles.previewImage}
-            />
+            <div
+              className={styles.previewTrack}
+              style={{ transform: `translateX(-${selectedIndex! * 100}%)` }}
+            >
+              {photos.map((photo) => (
+                <img
+                  key={photo.id}
+                  src={photo.photoUrl ?? ""}
+                  alt={photo.displayFileName ?? ""}
+                  className={styles.previewImage}
+                />
+              ))}
+            </div>
           </div>
           <button
             className={`${styles.navButton} ${styles.nextButton}`}
