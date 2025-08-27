@@ -2,8 +2,8 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./home.module.css";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
@@ -25,21 +25,69 @@ export default function Home() {
   const queryClient = useQueryClient();
 
   const touchStartX = useRef<number | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
+  const resizeAllGridItems = useCallback(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const rowHeight = parseInt(
+      window.getComputedStyle(grid).getPropertyValue("grid-auto-rows"),
+    );
+    const gap = parseInt(window.getComputedStyle(grid).getPropertyValue("gap"));
+    grid
+      .querySelectorAll<HTMLElement>(`.${styles.photoItem}`)
+      .forEach((item) => {
+        const img = item.querySelector("img");
+        if (!img) return;
+        const rowSpan = Math.ceil(
+          (img.getBoundingClientRect().height + gap) / (rowHeight + gap),
+        );
+        item.style.gridRowEnd = `span ${rowSpan}`;
+      });
+  }, []);
 
   useEffect(() => {
     const update = () => setUsername(getCookie("username"));
     update();
     return onAuthSessionChange(update);
   }, []);
+  const PAGE_SIZE = 20;
   const {
-    data: photos = [],
+    data: photoPages,
     isLoading: photosLoading,
     isError: photosError,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["photos"],
-    queryFn: getPhotos,
+    queryFn: ({ pageParam = 0 }) => getPhotos(pageParam, PAGE_SIZE),
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.length === PAGE_SIZE ? pages.length * PAGE_SIZE : undefined,
+    initialPageParam: 0,
     enabled: !!username && active === "photos",
   });
+  const photos = useMemo(() => photoPages?.pages.flat() ?? [], [photoPages]);
+
+  useEffect(() => {
+    resizeAllGridItems();
+    window.addEventListener("resize", resizeAllGridItems);
+    return () => window.removeEventListener("resize", resizeAllGridItems);
+  }, [photos, resizeAllGridItems]);
+
+  useEffect(() => {
+    if (!hasNextPage) return;
+    const node = loadMoreRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const selectedPhoto =
     selectedIndex !== null ? photos[selectedIndex] : null;
@@ -173,16 +221,23 @@ export default function Home() {
             <p>Failed to load photos</p>
           ) : (
             <>
-              <div className={styles.photoGrid}>
+              <div className={styles.photoGrid} ref={gridRef}>
                 {photos.map((photo, i) => (
-                  <img
+                  <div
                     key={photo.id}
-                    src={photo.photoUrl ?? ""}
-                    alt={photo.displayFileName ?? ""}
+                    className={styles.photoItem}
                     onClick={() => setSelectedIndex(i)}
-                  />
+                  >
+                    <img
+                      src={photo.photoUrl ?? ""}
+                      alt={photo.displayFileName ?? ""}
+                      onLoad={resizeAllGridItems}
+                    />
+                  </div>
                 ))}
               </div>
+              <div ref={loadMoreRef} style={{ height: 1 }} />
+              {isFetchingNextPage && <p>Loading...</p>}
             </>
           )
         ) : albumsLoading ? (

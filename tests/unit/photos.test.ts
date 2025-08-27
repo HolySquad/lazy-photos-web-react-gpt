@@ -62,10 +62,33 @@ describe("getPhotos", () => {
     (global as any).fetch = mockFetch;
     const { getPhotos } = await import("../../src/shared/api/photos");
     await expect(getPhotos()).resolves.toEqual([mockPhoto]);
-    const [, init] = mockFetch.mock.calls[0];
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(
+      "https://api.example.com/Photo?offset=0&pageSize=20",
+    );
     expect(init?.method).toBe("GET");
     expect((init?.headers as Headers).get("Authorization")).toBe(
       "Bearer token",
+    );
+  });
+
+  it("supports custom offset and pageSize", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
+    setupDom({ accessToken: "token" });
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      json: async () => [],
+      text: async () => "",
+    });
+    (global as any).fetch = mockFetch;
+    const { getPhotos } = await import("../../src/shared/api/photos");
+    await expect(getPhotos(40, 10)).resolves.toEqual([]);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(
+      "https://api.example.com/Photo?offset=40&pageSize=10",
     );
   });
 

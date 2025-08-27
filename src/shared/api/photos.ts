@@ -37,9 +37,12 @@ const UploadPhotoResultSchema = z.union([
   z.coerce.number().transform((id) => ({ id })),
 ]);
 
-export async function getPhotos(): Promise<Photo[]> {
+export async function getPhotos(
+  offset = 0,
+  pageSize = 20,
+): Promise<Photo[]> {
   try {
-    const res = await PhotoService.latestPhotos();
+    const res = await PhotoService.latestPhotos(offset, pageSize);
     return PhotosSchema.parse(res);
   } catch (err) {
     const status = (err as any)?.status as number | undefined;
@@ -58,10 +61,12 @@ export async function getPhotos(): Promise<Photo[]> {
             tokens.refreshToken ?? refreshToken,
             username,
           );
-          const retry = await PhotoService.latestPhotos();
+          const retry = await PhotoService.latestPhotos(offset, pageSize);
           return PhotosSchema.parse(retry);
         } catch (refreshErr) {
-          const rBody = (refreshErr as any)?.body as { message?: string } | undefined;
+          const rBody = (refreshErr as any)?.body as {
+            message?: string;
+          } | undefined;
           const rMessage =
             rBody?.message ??
             (refreshErr instanceof Error
