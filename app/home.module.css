@@ -269,13 +269,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 1000;
 }
 
 .photoPreview {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -288,6 +289,7 @@
 .previewImage {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   object-fit: contain;
   flex-shrink: 0;
   display: block;
@@ -302,6 +304,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem;
+  padding-top: calc(0.5rem + constant(safe-area-inset-top));
+  padding-top: calc(0.5rem + env(safe-area-inset-top));
   background: rgba(0, 0, 0, 0.6);
   z-index: 1;
 }
@@ -406,6 +410,10 @@
 }
 
 @media (max-width: 600px) {
+  .main {
+    padding: 1rem;
+  }
+
   .title {
     font-size: 2rem;
   }
@@ -425,5 +433,16 @@
 
   .nav {
     flex-direction: row;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .login,
+  .register {
+    width: 100%;
+    text-align: center;
   }
 }
