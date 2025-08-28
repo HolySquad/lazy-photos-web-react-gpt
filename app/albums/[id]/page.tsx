@@ -6,6 +6,7 @@ import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAlbum } from "@/shared/api/albums";
 import styles from "./album.module.css";
+import PhotoPreview from "@/features/photo-preview";
 
 type Props = { params: { id: string } };
 
@@ -21,6 +22,7 @@ export default function AlbumView({ params }: Props) {
   } = useQuery({ queryKey: ["album", id], queryFn: () => getAlbum(id) });
 
   const photos = useMemo(() => album?.albumPhotos ?? [], [album]);
+  const heroPhoto = photos[0];
   const selectedPhoto = selectedIndex !== null ? photos[selectedIndex] : null;
 
   const resizeAllGridItems = useCallback(() => {
@@ -58,39 +60,6 @@ export default function AlbumView({ params }: Props) {
     [photos.length],
   );
 
-  const touchStartX = useRef<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const delta = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(delta) > 50) {
-      if (delta < 0) {
-        showNextPhoto();
-      } else {
-        showPrevPhoto();
-      }
-    }
-    touchStartX.current = null;
-  };
-
-  useEffect(() => {
-    if (selectedIndex === null) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        showNextPhoto();
-      } else if (e.key === "ArrowLeft") {
-        showPrevPhoto();
-      } else if (e.key === "Escape") {
-        setSelectedIndex(null);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedIndex, showNextPhoto, showPrevPhoto]);
 
   useEffect(() => {
     resizeAllGridItems();
@@ -107,7 +76,26 @@ export default function AlbumView({ params }: Props) {
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>{album.title}</h1>
+      <Link href="/" className={styles.back}>
+        Back
+      </Link>
+
+      {heroPhoto && (heroPhoto.thumbnailUrl || heroPhoto.blobUrl) && (
+        <div className={styles.hero} onClick={() => setSelectedIndex(0)}>
+          <img
+            src={heroPhoto.thumbnailUrl ?? heroPhoto.blobUrl ?? ""}
+            alt="album photo"
+          />
+        </div>
+      )}
+
+      <div className={styles.details}>
+        <h1 className={styles.title}>{album.title}</h1>
+        <p className={styles.meta}>
+          {album.photoCount} {album.photoCount === 1 ? "photo" : "photos"}
+        </p>
+      </div>
+
       <div className={styles.photoGrid} ref={gridRef}>
         {photos.map(
           (photo, i) =>
@@ -126,70 +114,19 @@ export default function AlbumView({ params }: Props) {
             ),
         )}
       </div>
+
       {selectedPhoto && selectedPhoto.blobUrl && (
-        <div
-          className={styles.photoPreviewOverlay}
-          onClick={() => setSelectedIndex(null)}
-        >
-          <button
-            className={`${styles.navButton} ${styles.prevButton}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              showPrevPhoto();
-            }}
-            aria-label="Previous photo"
-          >
-            ‹
-          </button>
-          <div
-            className={styles.photoPreview}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            <div
-              className={styles.topBar}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedIndex(null)}
-                aria-label="Close preview"
-              >
-                ←
-              </button>
-            </div>
-            <div
-              className={styles.previewTrack}
-              style={{ transform: `translateX(-${selectedIndex! * 100}vw)` }}
-            >
-              {photos.map(
-                (photo) =>
-                  photo.blobUrl && (
-                    <img
-                      key={photo.photoId}
-                      src={photo.blobUrl}
-                      alt="album photo"
-                      className={styles.previewImage}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  ),
-              )}
-            </div>
-          </div>
-          <button
-            className={`${styles.navButton} ${styles.nextButton}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              showNextPhoto();
-            }}
-            aria-label="Next photo"
-          >
-            ›
-          </button>
-        </div>
+        <PhotoPreview
+          photos={photos.map((p) => ({
+            src: p.blobUrl ?? "",
+            alt: "album photo",
+          }))}
+          index={selectedIndex!}
+          onClose={() => setSelectedIndex(null)}
+          onPrev={showPrevPhoto}
+          onNext={showNextPhoto}
+        />
       )}
-      <Link href="/" className={styles.back}>
-        Back
-      </Link>
     </main>
   );
 }

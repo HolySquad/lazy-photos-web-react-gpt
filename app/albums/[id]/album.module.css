@@ -1,10 +1,15 @@
 .main {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.title {
+.back {
+  align-self: flex-start;
+  margin: 1rem;
   color: #00ff00;
-  margin-bottom: 1rem;
+  border: 1px solid #00ff00;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
 }
 
 .status {
@@ -12,11 +17,54 @@
   margin-bottom: 1rem;
 }
 
+.hero {
+  width: 100%;
+  height: 150px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    height: 200px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero {
+    height: 300px;
+  }
+}
+
+.details {
+  padding: 0 1rem 1rem;
+}
+
+.title {
+  color: #00ff00;
+  margin-bottom: 0.25rem;
+}
+
+.meta {
+  color: #00ff00;
+  margin-bottom: 0.75rem;
+}
+
+/* removed thumbnail row for future share functionality */
+
 /* Masonry-style photo grid with left-to-right flow */
 .photoGrid {
   display: grid;
   width: 100%;
   gap: 0.5rem;
+  padding: 0 1rem;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   grid-auto-rows: 10px;
   grid-auto-flow: dense;
@@ -43,96 +91,11 @@
   display: block;
 }
 
-.back {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #00ff00;
-  border: 1px solid #00ff00;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-/* Photo preview overlay */
-.photoPreviewOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.photoPreview {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.previewTrack {
-  display: flex;
-  height: 100%;
-  transition: transform 0.3s ease;
-}
-
-.previewImage {
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  object-fit: contain;
-  flex-shrink: 0;
-  display: block;
-}
-
-.topBar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
-  padding-top: calc(0.5rem + constant(safe-area-inset-top));
-  padding-top: calc(0.5rem + env(safe-area-inset-top));
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 1;
-}
-
-.topBar button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.navButton {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 2rem;
-  cursor: pointer;
-}
-
-.prevButton {
-  left: 1rem;
-}
-
-.nextButton {
-  right: 1rem;
-}
-
 @media (max-width: 600px) {
-  .main {
-    padding: 1rem;
+  .details {
+    padding: 0 0.5rem 1rem;
+  }
+  .photoGrid {
+    padding: 0 0.5rem;
   }
 }

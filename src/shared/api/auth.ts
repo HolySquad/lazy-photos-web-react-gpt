@@ -1,13 +1,10 @@
-import { API_BASE_URL } from "../config";
+import "./client";
 import {
   LazyMyPhotosApiService,
-  OpenAPI,
   type RegisterRequest,
   type LoginRequest,
   type AccessTokenResponse,
 } from "./generated";
-
-OpenAPI.BASE = API_BASE_URL;
 
 export async function registerUser(data: RegisterRequest): Promise<void> {
   try {
