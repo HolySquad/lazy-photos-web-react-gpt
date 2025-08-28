@@ -9,6 +9,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import styles from "./home.module.css";
+import PhotoPreview from "@/features/photo-preview";
 import { getCookie, onAuthSessionChange } from "@/shared/auth/session";
 import { getPhotos } from "@/shared/api/photos";
 import {
@@ -27,8 +28,6 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAlbumPicker, setShowAlbumPicker] = useState(false);
   const queryClient = useQueryClient();
-
-  const touchStartX = useRef<number | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
 
@@ -126,22 +125,6 @@ export default function Home() {
     [photos.length],
   );
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const delta = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(delta) > 50) {
-      if (delta < 0) {
-        showNextPhoto();
-      } else {
-        showPrevPhoto();
-      }
-    }
-    touchStartX.current = null;
-  };
 
   const submitCreateAlbum = async () => {
     if (!albumTitle.trim()) return;
@@ -154,26 +137,6 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    if (selectedIndex === null) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        showNextPhoto();
-      } else if (e.key === "ArrowLeft") {
-        showPrevPhoto();
-      } else if (e.key === "Escape") {
-        setSelectedIndex(null);
-        setMenuOpen(false);
-        setShowAlbumPicker(false);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [
-    selectedIndex,
-    showNextPhoto,
-    showPrevPhoto,
-  ]);
 
   if (!username) {
     const images = Array.from({ length: 6 }).map((_, i) => (
@@ -315,90 +278,40 @@ export default function Home() {
         )}
       </section>
       {selectedPhoto && (
-        <div
-          className={styles.photoPreviewOverlay}
-          onClick={() => {
+        <PhotoPreview
+          photos={photos.map((photo) => ({ src: photo.photoUrl ?? "", alt: photo.displayFileName ?? "" }))}
+          index={selectedIndex!}
+          onClose={() => {
             setSelectedIndex(null);
             setMenuOpen(false);
             setShowAlbumPicker(false);
           }}
-        >
-          <button
-            className={`${styles.navButton} ${styles.prevButton}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              showPrevPhoto();
-            }}
-            aria-label="Previous photo"
-          >
-            ‹
-          </button>
-          <div
-            className={styles.photoPreview}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            <div
-              className={styles.topBar}
-              onClick={(e) => e.stopPropagation()}
-            >
+          onPrev={showPrevPhoto}
+          onNext={showNextPhoto}
+          actions={
+            <div className={styles.previewMenuWrapper}>
               <button
-                onClick={() => {
-                  setSelectedIndex(null);
-                  setMenuOpen(false);
-                  setShowAlbumPicker(false);
-                }}
-                aria-label="Close preview"
+                className={styles.menuButton}
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="More actions"
               >
-                ←
+                ⋮
               </button>
-              <div className={styles.previewMenuWrapper}>
-                <button
-                  className={styles.menuButton}
-                  onClick={() => setMenuOpen((v) => !v)}
-                  aria-label="More actions"
-                >
-                  ⋮
-                </button>
-                {menuOpen && (
-                  <div className={styles.menuDropdown}>
-                    <button
-                      onClick={() => {
-                        setShowAlbumPicker(true);
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Add to album
-                    </button>
-                  </div>
-                )}
-              </div>
+              {menuOpen && (
+                <div className={styles.menuDropdown}>
+                  <button
+                    onClick={() => {
+                      setShowAlbumPicker(true);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Add to album
+                  </button>
+                </div>
+              )}
             </div>
-            <div
-              className={styles.previewTrack}
-              style={{ transform: `translateX(-${selectedIndex! * 100}vw)` }}
-            >
-              {photos.map((photo) => (
-                <img
-                  key={photo.id}
-                  src={photo.photoUrl ?? ""}
-                  alt={photo.displayFileName ?? ""}
-                  className={styles.previewImage}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ))}
-            </div>
-          </div>
-          <button
-            className={`${styles.navButton} ${styles.nextButton}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              showNextPhoto();
-            }}
-            aria-label="Next photo"
-          >
-            ›
-          </button>
+          }
+        >
           {showAlbumPicker && (
             <div className={styles.modalOverlay}>
               <div className={styles.modal}>
@@ -416,7 +329,7 @@ export default function Home() {
                           alert(
                             err instanceof Error
                               ? err.message
-                              : "Failed to add photo",
+                              : "Failed to add photo"
                           );
                         }
                       }}
@@ -441,7 +354,7 @@ export default function Home() {
               </div>
             </div>
           )}
-        </div>
+        </PhotoPreview>
       )}
     </main>
   );
