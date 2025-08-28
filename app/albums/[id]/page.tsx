@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAlbum } from "@/shared/api/albums";
+import { getAlbum, type AlbumPhoto } from "@/shared/api/albums";
 import styles from "./album.module.css";
 import PhotoPreview from "@/features/photo-preview";
 
@@ -22,6 +22,12 @@ export default function AlbumView({ params }: Props) {
   } = useQuery({ queryKey: ["album", id], queryFn: () => getAlbum(id) });
 
   const photos = useMemo(() => album?.albumPhotos ?? [], [album]);
+  const { heroPhotos, gridPhotos } = useMemo(() => {
+    if (photos.length >= 3) {
+      return { heroPhotos: photos.slice(0, 3), gridPhotos: photos.slice(3) };
+    }
+    return { heroPhotos: [] as AlbumPhoto[], gridPhotos: photos };
+  }, [photos]);
   const selectedPhoto = selectedIndex !== null ? photos[selectedIndex] : null;
 
   const resizeAllGridItems = useCallback(() => {
@@ -64,7 +70,7 @@ export default function AlbumView({ params }: Props) {
     resizeAllGridItems();
     window.addEventListener("resize", resizeAllGridItems);
     return () => window.removeEventListener("resize", resizeAllGridItems);
-  }, [photos, resizeAllGridItems]);
+  }, [gridPhotos, resizeAllGridItems]);
 
   if (albumLoading) {
     return <p className={styles.status}>Loading album...</p>;
@@ -75,15 +81,57 @@ export default function AlbumView({ params }: Props) {
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>{album.title}</h1>
+      <Link href="/" className={styles.back}>
+        Back
+      </Link>
+
+      {heroPhotos.length > 0 && (
+        <div className={styles.heroGrid}>
+          {heroPhotos.map(
+            (photo, i) =>
+              (photo.thumbnailUrl || photo.blobUrl) && (
+                <div
+                  key={photo.photoId}
+                  className={styles.heroItem}
+                  onClick={() => setSelectedIndex(i)}
+                >
+                  <img
+                    src={photo.thumbnailUrl ?? photo.blobUrl ?? ""}
+                    alt="album photo"
+                  />
+                </div>
+              ),
+          )}
+        </div>
+      )}
+
+      <div className={styles.details}>
+        <h1 className={styles.title}>{album.title}</h1>
+        <p className={styles.meta}>
+          {album.photoCount} {album.photoCount === 1 ? "photo" : "photos"}
+        </p>
+        <div className={styles.thumbRow}>
+          {photos.slice(0, 5).map(
+            (p) =>
+              (p.thumbnailUrl || p.blobUrl) && (
+                <img
+                  key={p.photoId}
+                  src={p.thumbnailUrl ?? p.blobUrl ?? ""}
+                  alt="preview"
+                />
+              ),
+          )}
+        </div>
+      </div>
+
       <div className={styles.photoGrid} ref={gridRef}>
-        {photos.map(
+        {gridPhotos.map(
           (photo, i) =>
             (photo.thumbnailUrl || photo.blobUrl) && (
               <div
                 key={photo.photoId}
                 className={styles.photoItem}
-                onClick={() => setSelectedIndex(i)}
+                onClick={() => setSelectedIndex(i + heroPhotos.length)}
               >
                 <img
                   src={photo.thumbnailUrl ?? photo.blobUrl ?? ""}
@@ -94,18 +142,19 @@ export default function AlbumView({ params }: Props) {
             ),
         )}
       </div>
-        {selectedPhoto && selectedPhoto.blobUrl && (
-          <PhotoPreview
-            photos={photos.map((p) => ({ src: p.blobUrl ?? "", alt: "album photo" }))}
-            index={selectedIndex!}
-            onClose={() => setSelectedIndex(null)}
-            onPrev={showPrevPhoto}
-            onNext={showNextPhoto}
-          />
-        )}
-      <Link href="/" className={styles.back}>
-        Back
-      </Link>
+
+      {selectedPhoto && selectedPhoto.blobUrl && (
+        <PhotoPreview
+          photos={photos.map((p) => ({
+            src: p.blobUrl ?? "",
+            alt: "album photo",
+          }))}
+          index={selectedIndex!}
+          onClose={() => setSelectedIndex(null)}
+          onPrev={showPrevPhoto}
+          onNext={showNextPhoto}
+        />
+      )}
     </main>
   );
 }

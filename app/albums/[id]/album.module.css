@@ -1,10 +1,15 @@
 .main {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.title {
+.back {
+  align-self: flex-start;
+  margin: 1rem;
   color: #00ff00;
-  margin-bottom: 1rem;
+  border: 1px solid #00ff00;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
 }
 
 .status {
@@ -12,11 +17,74 @@
   margin-bottom: 1rem;
 }
 
+.heroGrid {
+  display: grid;
+  width: 100%;
+  gap: 0.5rem;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 150px 150px;
+}
+
+.heroItem {
+  cursor: pointer;
+}
+
+.heroItem:first-child {
+  grid-row: 1 / span 2;
+}
+
+.heroItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .heroGrid {
+    grid-template-rows: 200px 200px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .heroGrid {
+    grid-template-rows: 300px 300px;
+  }
+}
+
+.details {
+  padding: 0 1rem 1rem;
+}
+
+.title {
+  color: #00ff00;
+  margin-bottom: 0.25rem;
+}
+
+.meta {
+  color: #00ff00;
+  margin-bottom: 0.75rem;
+}
+
+.thumbRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.thumbRow img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 /* Masonry-style photo grid with left-to-right flow */
 .photoGrid {
   display: grid;
   width: 100%;
   gap: 0.5rem;
+  padding: 0 1rem;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   grid-auto-rows: 10px;
   grid-auto-flow: dense;
@@ -43,18 +111,14 @@
   display: block;
 }
 
-.back {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #00ff00;
-  border: 1px solid #00ff00;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-/* Photo preview overlay */
 @media (max-width: 600px) {
-  .main {
-    padding: 1rem;
+  .heroGrid {
+    grid-template-rows: 120px 120px;
+  }
+  .details {
+    padding: 0 0.5rem 1rem;
+  }
+  .photoGrid {
+    padding: 0 0.5rem;
   }
 }
