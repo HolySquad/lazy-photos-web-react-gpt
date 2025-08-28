@@ -2,11 +2,15 @@
   position: fixed;
   top: 0;
   right: 0;
+  left: 0;
+  width: 100%;
   padding: 1rem;
   z-index: 100;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .userMenu {
@@ -42,4 +46,19 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .header {
+    justify-content: center;
+  }
+
+  .uploadProgress {
+    width: 100%;
+  }
+
+  .userMenu {
+    width: 100%;
+    justify-content: center;
+  }
 }

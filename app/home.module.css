@@ -406,6 +406,10 @@
 }
 
 @media (max-width: 600px) {
+  .main {
+    padding: 1rem;
+  }
+
   .title {
     font-size: 2rem;
   }
@@ -425,5 +429,16 @@
 
   .nav {
     flex-direction: row;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .login,
+  .register {
+    width: 100%;
+    text-align: center;
   }
 }
