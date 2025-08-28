@@ -1,10 +1,6 @@
 import { z } from "zod";
-import { API_BASE_URL } from "../config";
-import { getCookie } from "../auth/session";
-import { OpenAPI, AlbumService, AlbumPhotosService } from "./generated";
-
-OpenAPI.BASE = API_BASE_URL;
-OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
+import { apiRequest } from "./client";
+import { AlbumService, AlbumPhotosService } from "./generated";
 
 const AlbumPhotoSchema = z.object({
   photoId: z.number(),
@@ -26,7 +22,7 @@ export type AlbumPhoto = z.infer<typeof AlbumPhotoSchema>;
 
 export async function getAlbums(): Promise<Album[]> {
   try {
-    const res = await AlbumService.getAlbums();
+    const res = await apiRequest(() => AlbumService.getAlbums());
     return AlbumsSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
@@ -39,7 +35,7 @@ export async function getAlbums(): Promise<Album[]> {
 
 export async function getAlbum(id: number): Promise<Album> {
   try {
-    const res = await AlbumPhotosService.getAlbumById(id);
+    const res = await apiRequest(() => AlbumPhotosService.getAlbumById(id));
     return AlbumSchema.parse(res);
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
@@ -55,7 +51,7 @@ export async function createAlbum(
   photoIds: number[] = [],
 ): Promise<void> {
   try {
-    await AlbumService.postAlbum(title, photoIds);
+    await apiRequest(() => AlbumService.postAlbum(title, photoIds));
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
@@ -67,7 +63,7 @@ export async function createAlbum(
 
 export async function deleteAlbum(id: number): Promise<void> {
   try {
-    await AlbumService.deleteAlbum(id);
+    await apiRequest(() => AlbumService.deleteAlbum(id));
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
@@ -82,7 +78,9 @@ export async function addPhotoToAlbum(
   photoId: number,
 ): Promise<void> {
   try {
-    await AlbumPhotosService.postAlbumPhotosPhotos1(albumId, photoId);
+    await apiRequest(() =>
+      AlbumPhotosService.postAlbumPhotosPhotos1(albumId, photoId),
+    );
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =
@@ -97,7 +95,9 @@ export async function addPhotosToAlbum(
   photoIds: number[],
 ): Promise<void> {
   try {
-    await AlbumPhotosService.postAlbumPhotosPhotos(albumId, photoIds);
+    await apiRequest(() =>
+      AlbumPhotosService.postAlbumPhotosPhotos(albumId, photoIds),
+    );
   } catch (err) {
     const body = (err as any)?.body as { message?: string } | undefined;
     const message =

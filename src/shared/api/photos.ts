@@ -1,12 +1,10 @@
 import axios from "axios";
 import { z } from "zod";
 import { API_BASE_URL } from "../config";
-import { getCookie, setAuthSession } from "../auth/session";
-import { refreshAccessToken } from "./auth";
-import { OpenAPI, PhotoService } from "./generated";
+import { getCookie } from "../auth/session";
+import { apiRequest } from "./client";
+import { PhotoService } from "./generated";
 
-OpenAPI.BASE = API_BASE_URL;
-OpenAPI.TOKEN = async () => getCookie("accessToken") || "";
 
 const PhotoMetadataSchema = z.object({
   cameraModel: z.string(),
@@ -40,42 +38,12 @@ const UploadPhotoResultSchema = z.union([
 
 export async function getPhotos(offset = 0, pageSize = 20): Promise<Photo[]> {
   try {
-    const res = await PhotoService.latestPhotos(offset, pageSize);
+    const res = await apiRequest(() =>
+      PhotoService.latestPhotos(offset, pageSize),
+    );
     return PhotosSchema.parse(res);
   } catch (err) {
-    const status = (err as any)?.status as number | undefined;
     const body = (err as any)?.body as { message?: string } | undefined;
-    if (status === 401 && body?.message === "expired") {
-      const refreshToken = getCookie("refreshToken");
-      const username = getCookie("username") || "";
-      if (refreshToken) {
-        try {
-          const tokens = await refreshAccessToken(refreshToken);
-          if (!tokens || !tokens.accessToken) {
-            throw new Error("Missing access token");
-          }
-          setAuthSession(
-            tokens.accessToken,
-            tokens.refreshToken ?? refreshToken,
-            username,
-          );
-          const retry = await PhotoService.latestPhotos(offset, pageSize);
-          return PhotosSchema.parse(retry);
-        } catch (refreshErr) {
-          const rBody = (refreshErr as any)?.body as
-            | {
-                message?: string;
-              }
-            | undefined;
-          const rMessage =
-            rBody?.message ??
-            (refreshErr instanceof Error
-              ? refreshErr.message
-              : "Failed to load photos");
-          throw new Error(rMessage);
-        }
-      }
-    }
     const message =
       body?.message ??
       (err instanceof Error ? err.message : "Failed to load photos");
@@ -88,52 +56,25 @@ export async function uploadPhoto(
   onProgress?: (percent: number) => void,
 ): Promise<number> {
   try {
-    const token = getCookie("accessToken") || "";
     const formData = new FormData();
     formData.append("file", file);
-    const res = await axios.post(`${API_BASE_URL}/Photo`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (e) => {
-        if (onProgress && e.total) {
-          onProgress(Math.round((e.loaded / e.total) * 100));
-        }
-      },
+    const res = await apiRequest(() => {
+      const token = getCookie("accessToken") || "";
+      return axios.post(`${API_BASE_URL}/Photo`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (e) => {
+          if (onProgress && e.total) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        },
+      });
     });
     return UploadPhotoResultSchema.parse(res.data).id;
   } catch (err: any) {
-    const status = err?.response?.status as number | undefined;
     const body = err?.response?.data as { message?: string } | undefined;
-    if (status === 401 && body?.message === "expired") {
-      const refreshToken = getCookie("refreshToken");
-      const username = getCookie("username") || "";
-      if (refreshToken) {
-        try {
-          const tokens = await refreshAccessToken(refreshToken);
-          if (!tokens || !tokens.accessToken) {
-            throw new Error("Missing access token");
-          }
-          setAuthSession(
-            tokens.accessToken,
-            tokens.refreshToken ?? refreshToken,
-            username,
-          );
-          return await uploadPhoto(file, onProgress);
-        } catch (refreshErr: any) {
-          const rBody = refreshErr?.response?.data as
-            | { message?: string }
-            | undefined;
-          const rMessage =
-            rBody?.message ??
-            (refreshErr instanceof Error
-              ? refreshErr.message
-              : "Failed to upload photo");
-          throw new Error(rMessage);
-        }
-      }
-    }
     const message =
       body?.message ??
       (err instanceof Error ? err.message : "Failed to upload photo");
