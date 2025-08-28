@@ -78,6 +78,21 @@ export default function AlbumView({ params }: Props) {
   };
 
   useEffect(() => {
+    if (selectedIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        showNextPhoto();
+      } else if (e.key === "ArrowLeft") {
+        showPrevPhoto();
+      } else if (e.key === "Escape") {
+        setSelectedIndex(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedIndex, showNextPhoto, showPrevPhoto]);
+
+  useEffect(() => {
     resizeAllGridItems();
     window.addEventListener("resize", resizeAllGridItems);
     return () => window.removeEventListener("resize", resizeAllGridItems);
@@ -128,11 +143,13 @@ export default function AlbumView({ params }: Props) {
           </button>
           <div
             className={styles.photoPreview}
-            onClick={(e) => e.stopPropagation()}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <div className={styles.topBar}>
+            <div
+              className={styles.topBar}
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 onClick={() => setSelectedIndex(null)}
                 aria-label="Close preview"
@@ -152,6 +169,7 @@ export default function AlbumView({ params }: Props) {
                       src={photo.blobUrl}
                       alt="album photo"
                       className={styles.previewImage}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   ),
               )}
